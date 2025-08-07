@@ -10,6 +10,7 @@
   --border-color: #dee2e6; /* 邊框顏色 */
   --card-bg: #ffffff;
   --success-color: #28a745;
+  --danger-color: #dc3545;
 }
 
 /* --- 全域與基本設定 --- */
@@ -37,6 +38,13 @@ h2,
 h3 {
   color: var(--header-text-color);
   margin-top: 0;
+}
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
 }
 
 /* --- 頁首/導覽列 --- */
@@ -95,11 +103,16 @@ h3 {
   text-decoration: none;
   font-weight: bold;
 }
-.important-reminder a:hover {
-  text-decoration: underline;
+
+/* --- 頁面區塊 --- */
+.page-section {
+  background-color: var(--card-bg);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
-/* --- 商品卡片 (按鈕改為藍色) --- */
+/* --- 商品卡片 --- */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -164,7 +177,6 @@ h3 {
   bottom: 25px;
   right: 25px;
   background-color: #06c755;
-  color: white;
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -183,7 +195,7 @@ h3 {
   height: 36px;
 }
 
-/* --- 結帳頁面新樣式 --- */
+/* --- 結帳頁面 --- */
 .checkout-container {
   max-width: 800px;
   margin: 40px auto;
@@ -194,10 +206,7 @@ h3 {
 .checkout-header h1 {
   font-size: 2.5em;
   margin: 0;
-}
-.checkout-header a {
-  color: var(--primary-color);
-  text-decoration: none;
+  color: #343a40;
 }
 .checkout-section {
   background-color: #fff;
@@ -212,6 +221,7 @@ h3 {
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 15px;
   margin-bottom: 20px;
+  color: #343a40;
 }
 .cart-table {
   width: 100%;
@@ -263,6 +273,7 @@ h3 {
   padding-top: 20px;
   font-size: 1.2em;
   font-weight: bold;
+  color: #343a40;
 }
 .payment-details p {
   margin: 15px 0;
@@ -329,8 +340,4 @@ h3 {
   color: #999;
   text-decoration: none;
   font-size: 0.9em;
-}
-.admin-login-link:hover {
-  color: var(--primary-color);
-  text-decoration: underline;
 }

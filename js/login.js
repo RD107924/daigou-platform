@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const errorMessageDiv = document.getElementById("error-message");
+
+  // !!! 請再次確認這個網址是您部署好的後端網址 !!!
   const API_BASE_URL = "https://daigou-platform-api.onrender.com";
 
   loginForm.addEventListener("submit", async (event) => {
