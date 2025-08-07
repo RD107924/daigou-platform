@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
       productName: document.getElementById("product-name").value,
       specs: document.getElementById("product-specs").value,
       quantity: parseInt(document.getElementById("product-quantity").value, 10),
+      paopaohuId: document.getElementById("paopaohu-id").value, // <-- 新增收集的欄位
       contactInfo: document.getElementById("contact-info").value,
       notes: document.getElementById("product-notes").value,
     };

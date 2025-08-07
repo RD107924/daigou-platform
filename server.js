@@ -42,8 +42,7 @@ function authenticateToken(req, res, next) {
 }
 
 // --- Public Routes ---
-
-// 使用者登入
+// (Login, Products, Orders, Requests 的公開 API 維持不變)
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -59,18 +58,12 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
-
-// 取得所有商品
 app.get("/api/products", (req, res) => res.json(db.data.products));
-
-// 取得單一商品
 app.get("/api/products/:id", (req, res) => {
   const product = db.data.products.find((p) => p.id === req.params.id);
   if (!product) return res.status(404).json({ message: "找不到該商品" });
   res.json(product);
 });
-
-// 建立訂單
 app.post("/api/orders", async (req, res) => {
   try {
     const orderData = req.body;
@@ -94,8 +87,6 @@ app.post("/api/orders", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
-
-// 建立一筆新的代採購請求
 app.post("/api/requests", async (req, res) => {
   try {
     const requestData = req.body;
@@ -120,8 +111,6 @@ app.post("/api/requests", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
-
-// 根據跑跑虎ID查詢訂單
 app.get("/api/orders/lookup", async (req, res) => {
   try {
     const { paopaohuId } = req.query;
@@ -140,7 +129,7 @@ app.get("/api/orders/lookup", async (req, res) => {
 
 // --- Protected Routes ---
 
-// 修改使用者密碼
+// (Password, Products, Orders 的保護 API 維持不變)
 app.patch("/api/user/password", authenticateToken, async (req, res) => {
   try {
     const { username } = req.user;
@@ -162,16 +151,12 @@ app.patch("/api/user/password", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
-
-// 新增商品
 app.post("/api/products", authenticateToken, async (req, res) => {
   const newProduct = { id: `p${Date.now()}`, ...req.body };
   db.data.products.push(newProduct);
   await db.write();
   res.status(201).json(newProduct);
 });
-
-// 更新商品
 app.put("/api/products/:id", authenticateToken, async (req, res) => {
   const i = db.data.products.findIndex((p) => p.id === req.params.id);
   if (i === -1) return res.status(404).json({ message: "找不到該商品" });
@@ -179,8 +164,6 @@ app.put("/api/products/:id", authenticateToken, async (req, res) => {
   await db.write();
   res.json({ message: "商品更新成功", product: db.data.products[i] });
 });
-
-// 刪除商品
 app.delete("/api/products/:id", authenticateToken, async (req, res) => {
   const i = db.data.products.findIndex((p) => p.id === req.params.id);
   if (i === -1) return res.status(404).json({ message: "找不到該商品" });
@@ -188,14 +171,10 @@ app.delete("/api/products/:id", authenticateToken, async (req, res) => {
   await db.write();
   res.status(200).json({ message: "商品刪除成功" });
 });
-
-// 取得所有訂單 (管理者)
 app.get("/api/orders", authenticateToken, (req, res) => {
   const sortedOrders = [...db.data.orders].reverse();
   res.json(sortedOrders);
 });
-
-// 更新訂單狀態
 app.patch(
   "/api/orders/:orderId/status",
   authenticateToken,
@@ -219,6 +198,37 @@ app.patch(
       await db.write();
       res.json({ message: "訂單狀態更新成功", order: orderToUpdate });
     } catch (error) {
+      res.status(500).json({ message: "伺服器內部錯誤" });
+    }
+  }
+);
+
+// **--- 新增的 API 在這裡 ---**
+// 取得所有代採購請求
+app.get("/api/requests", authenticateToken, (req, res) => {
+  const sortedRequests = [...db.data.requests].reverse();
+  res.json(sortedRequests);
+});
+
+// 更新代採購請求狀態
+app.patch(
+  "/api/requests/:requestId/status",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { requestId } = req.params;
+      const { status } = req.body;
+      const requestToUpdate = db.data.requests.find(
+        (r) => r.requestId === requestId
+      );
+      if (!requestToUpdate) {
+        return res.status(404).json({ message: "找不到該請求" });
+      }
+      requestToUpdate.status = status;
+      await db.write();
+      res.json({ message: "請求狀態更新成功", request: requestToUpdate });
+    } catch (error) {
+      console.error("更新請求狀態時發生錯誤:", error);
       res.status(500).json({ message: "伺服器內部錯誤" });
     }
   }
