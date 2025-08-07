@@ -5,7 +5,6 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// 部署時使用 /data/db.json，本地開發時使用 db.json
 const adapter = new JSONFile(
   process.env.NODE_ENV === "production" ? "/data/db.json" : "db.json"
 );
@@ -13,12 +12,33 @@ const defaultData = { products: [], orders: [], users: [], requests: [] };
 const db = new Low(adapter, defaultData);
 await db.read();
 
-// 防呆機制，確保所有資料陣列都存在
 db.data = db.data || defaultData;
 db.data.products = db.data.products || [];
 db.data.orders = db.data.orders || [];
 db.data.users = db.data.users || [];
 db.data.requests = db.data.requests || [];
+
+// 伺服器啟動時，自動檢查並建立/更新 Randy 管理員帳號
+async function initializeAdminUser() {
+  let adminUser = db.data.users.find((u) => u.username === "randy");
+  if (!adminUser) {
+    console.log(`!!! 找不到管理者 randy，正在建立新的帳號...`);
+    const passwordHash = await bcrypt.hash("randy1007", 10);
+    adminUser = { username: "randy", passwordHash, role: "admin" };
+    db.data.users.push(adminUser);
+    await db.write();
+    console.log(`!!! 管理者 randy 已成功建立。`);
+  } else {
+    if (adminUser.role !== "admin") {
+      // 確保 randy 永遠是 admin
+      console.log(`!!! 將管理者 ${adminUser.username} 的角色更正為 admin...`);
+      adminUser.role = "admin";
+      await db.write();
+    }
+    console.log(`管理者 randy 已存在，無需操作。`);
+  }
+}
+await initializeAdminUser();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,7 +48,7 @@ const JWT_SECRET =
 app.use(cors());
 app.use(express.json());
 
-// 路由守衛 (認證 Token)
+// --- 中介軟體 (Middleware) ---
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -41,8 +61,15 @@ function authenticateToken(req, res, next) {
   });
 }
 
+// 新增：管理員權限驗證中介軟體
+function authorizeAdmin(req, res, next) {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "權限不足" });
+  }
+  next();
+}
+
 // --- Public Routes ---
-// (Login, Products, Orders, Requests 的公開 API 維持不變)
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -51,8 +78,10 @@ app.post("/api/login", async (req, res) => {
     const isPasswordMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordMatch)
       return res.status(401).json({ message: "帳號或密碼錯誤" });
-    const payload = { username: user.username };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+
+    // 修改點：在 token 中加入 role 資訊
+    const payload = { username: user.username, role: user.role };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "8h" });
     res.json({ message: "登入成功", token: token });
   } catch (error) {
     res.status(500).json({ message: "伺服器內部錯誤" });
@@ -128,8 +157,6 @@ app.get("/api/orders/lookup", async (req, res) => {
 });
 
 // --- Protected Routes ---
-
-// (Password, Products, Orders 的保護 API 維持不變)
 app.patch("/api/user/password", authenticateToken, async (req, res) => {
   try {
     const { username } = req.user;
@@ -202,15 +229,10 @@ app.patch(
     }
   }
 );
-
-// **--- 新增的 API 在這裡 ---**
-// 取得所有代採購請求
 app.get("/api/requests", authenticateToken, (req, res) => {
   const sortedRequests = [...db.data.requests].reverse();
   res.json(sortedRequests);
 });
-
-// 更新代採購請求狀態
 app.patch(
   "/api/requests/:requestId/status",
   authenticateToken,
@@ -229,6 +251,49 @@ app.patch(
       res.json({ message: "請求狀態更新成功", request: requestToUpdate });
     } catch (error) {
       console.error("更新請求狀態時發生錯誤:", error);
+      res.status(500).json({ message: "伺服器內部錯誤" });
+    }
+  }
+);
+
+// --- Admin Only Routes ---
+app.get("/api/users", authenticateToken, authorizeAdmin, (req, res) => {
+  const users = db.data.users.map(({ passwordHash, ...user }) => user);
+  res.json(users);
+});
+app.post("/api/users", authenticateToken, authorizeAdmin, async (req, res) => {
+  try {
+    const { username, password, role } = req.body;
+    if (!username || !password || !role)
+      return res.status(400).json({ message: "帳號、密碼和角色為必填項" });
+    const existingUser = db.data.users.find((u) => u.username === username);
+    if (existingUser) return res.status(409).json({ message: "此帳號已存在" });
+    const passwordHash = await bcrypt.hash(password, 10);
+    const newUser = { username, passwordHash, role };
+    db.data.users.push(newUser);
+    await db.write();
+    const { passwordHash: _, ...userToReturn } = newUser;
+    res.status(201).json(userToReturn);
+  } catch (error) {
+    res.status(500).json({ message: "伺服器內部錯誤" });
+  }
+});
+app.delete(
+  "/api/users/:username",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { username } = req.params;
+      if (username === "randy")
+        return res.status(403).json({ message: "無法刪除最高管理員帳號" });
+      const userIndex = db.data.users.findIndex((u) => u.username === username);
+      if (userIndex === -1)
+        return res.status(404).json({ message: "找不到該使用者" });
+      db.data.users.splice(userIndex, 1);
+      await db.write();
+      res.status(200).json({ message: "使用者刪除成功" });
+    } catch (error) {
       res.status(500).json({ message: "伺服器內部錯誤" });
     }
   }
