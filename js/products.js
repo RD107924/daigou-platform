@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const productGrid = document.querySelector(".product-grid");
-  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
+  const API_BASE_URL = "https://daigou-platform-api.onrender.com"; // 請確認是您的後端網址
 
   async function fetchAndRenderProducts() {
     try {
@@ -9,17 +9,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const products = await response.json();
       productGrid.innerHTML = "";
       products.forEach((product) => {
+        // 套用最新的卡片 HTML 結構
         const cardHTML = `
               <div class="product-card">
                   <img src="${product.imageUrl}" alt="${product.title}">
                   <div class="product-info">
-                      <span class="product-category">${product.category}</span>
-                      <h3 class="product-title">${product.title}</h3>
-                      <p class="product-price">$${product.price} TWD</p>
+                      <div>
+                          <span class="product-category">${
+                            product.category
+                          }</span>
+                          <h3 class="product-title">${product.title}</h3>
+                      </div>
+                      <div>
+                          <p class="product-price">$${product.price} TWD</p>
+                      </div>
                   </div>
                   <div class="product-actions">
-                      <button class="btn btn-secondary">查看詳情</button>
-                      <button class="btn btn-primary btn-add-to-cart" 
+                      <button class="btn-primary btn-add-to-cart" 
                           data-id="${product.id}" 
                           data-title="${product.title}" 
                           data-price="${product.price}"
@@ -37,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 修改點：現在 addToCart 會傳遞 serviceFee
+  // 這段邏輯與您提供的一致，是正確的
   productGrid.addEventListener("click", (event) => {
     if (event.target.classList.contains("btn-add-to-cart")) {
       const button = event.target;
@@ -46,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const productPrice = parseInt(button.dataset.price, 10);
       const serviceFee = parseInt(button.dataset.servicefee, 10);
 
-      // 呼叫我們在 cart.js 中定義的函式
+      // 呼叫 cart.js 中的 addToCart 函式，並傳入 serviceFee
       addToCart(productId, productTitle, productPrice, serviceFee);
 
       alert(`「${productTitle}」已加入購物車！`);
