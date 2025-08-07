@@ -20,41 +20,6 @@ db.data.orders = db.data.orders || [];
 db.data.users = db.data.users || [];
 db.data.requests = db.data.requests || [];
 
-// =================================================================
-// --- 管理員初始化腳本 (Admin User Seeding Script) ---
-// =================================================================
-async function initializeAdminUser() {
-  const adminUsername = "randy";
-  const adminPassword = "randy1007"; // 在這裡定義明碼
-
-  const adminUser = db.data.users.find((u) => u.username === adminUsername);
-
-  if (!adminUser) {
-    console.log(`!!! 找不到管理者 ${adminUsername}，正在建立新的帳號...`);
-    const passwordHash = await bcrypt.hash(adminPassword, 10);
-    db.data.users.push({
-      username: adminUsername,
-      passwordHash: passwordHash,
-    });
-    await db.write();
-    console.log(`!!! 管理者 ${adminUsername} 已成功建立。`);
-  } else {
-    // (可選) 如果您想每次部署都強制重設密碼，可以取消以下註解
-    // console.log(`!!! 找到管理者 ${adminUsername}，正在強制更新密碼...`);
-    // const passwordHash = await bcrypt.hash(adminPassword, 10);
-    // adminUser.passwordHash = passwordHash;
-    // await db.write();
-    // console.log(`!!! 管理者 ${adminUsername} 的密碼已重設。`);
-    console.log(`管理者 ${adminUsername} 已存在，無需操作。`);
-  }
-}
-
-// 在伺服器啟動前執行初始化
-await initializeAdminUser();
-// =================================================================
-// --- 初始化腳本結束 ---
-// =================================================================
-
 const app = express();
 const port = process.env.PORT || 3000;
 const JWT_SECRET =
@@ -63,7 +28,7 @@ const JWT_SECRET =
 app.use(cors());
 app.use(express.json());
 
-// ... 底下所有 API 路由的程式碼維持不變 ...
+// 路由守衛 (認證 Token)
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -75,6 +40,10 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+// --- Public Routes ---
+
+// 使用者登入
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -90,12 +59,18 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
+
+// 取得所有商品
 app.get("/api/products", (req, res) => res.json(db.data.products));
+
+// 取得單一商品
 app.get("/api/products/:id", (req, res) => {
   const product = db.data.products.find((p) => p.id === req.params.id);
   if (!product) return res.status(404).json({ message: "找不到該商品" });
   res.json(product);
 });
+
+// 建立訂單
 app.post("/api/orders", async (req, res) => {
   try {
     const orderData = req.body;
@@ -119,6 +94,8 @@ app.post("/api/orders", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
+
+// 建立一筆新的代採購請求
 app.post("/api/requests", async (req, res) => {
   try {
     const requestData = req.body;
@@ -143,6 +120,8 @@ app.post("/api/requests", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
+
+// 根據跑跑虎ID查詢訂單
 app.get("/api/orders/lookup", async (req, res) => {
   try {
     const { paopaohuId } = req.query;
@@ -158,6 +137,10 @@ app.get("/api/orders/lookup", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
+
+// --- Protected Routes ---
+
+// 修改使用者密碼
 app.patch("/api/user/password", authenticateToken, async (req, res) => {
   try {
     const { username } = req.user;
@@ -179,12 +162,16 @@ app.patch("/api/user/password", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
+
+// 新增商品
 app.post("/api/products", authenticateToken, async (req, res) => {
   const newProduct = { id: `p${Date.now()}`, ...req.body };
   db.data.products.push(newProduct);
   await db.write();
   res.status(201).json(newProduct);
 });
+
+// 更新商品
 app.put("/api/products/:id", authenticateToken, async (req, res) => {
   const i = db.data.products.findIndex((p) => p.id === req.params.id);
   if (i === -1) return res.status(404).json({ message: "找不到該商品" });
@@ -192,6 +179,8 @@ app.put("/api/products/:id", authenticateToken, async (req, res) => {
   await db.write();
   res.json({ message: "商品更新成功", product: db.data.products[i] });
 });
+
+// 刪除商品
 app.delete("/api/products/:id", authenticateToken, async (req, res) => {
   const i = db.data.products.findIndex((p) => p.id === req.params.id);
   if (i === -1) return res.status(404).json({ message: "找不到該商品" });
@@ -199,10 +188,14 @@ app.delete("/api/products/:id", authenticateToken, async (req, res) => {
   await db.write();
   res.status(200).json({ message: "商品刪除成功" });
 });
+
+// 取得所有訂單 (管理者)
 app.get("/api/orders", authenticateToken, (req, res) => {
   const sortedOrders = [...db.data.orders].reverse();
   res.json(sortedOrders);
 });
+
+// 更新訂單狀態
 app.patch(
   "/api/orders/:orderId/status",
   authenticateToken,
@@ -230,6 +223,8 @@ app.patch(
     }
   }
 );
+
+// 啟動伺服器
 app.listen(port, () => {
   console.log(`伺服器成功啟動！正在監聽 http://localhost:${port}`);
 });
