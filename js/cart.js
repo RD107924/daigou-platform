@@ -3,21 +3,17 @@
 // 從 localStorage 獲取購物車資料
 function getCart() {
   const cartJson = localStorage.getItem("shoppingCart");
-  // 如果購物車是空的 (null)，就回傳一個空陣列
   return cartJson ? JSON.parse(cartJson) : [];
 }
 
 // 將購物車資料儲存到 localStorage
 function saveCart(cart) {
-  const cartJson = JSON.stringify(cart);
-  localStorage.setItem("shoppingCart", cartJson);
+  localStorage.setItem("shoppingCart", JSON.stringify(cart));
 }
 
 // 加入商品到購物車
-function addToCart(productId, productTitle, productPrice) {
+function addToCart(productId, productTitle, productPrice, serviceFee) {
   const cart = getCart();
-
-  // 檢查購物車內是否已有此商品
   const existingItem = cart.find((item) => item.id === productId);
 
   if (existingItem) {
@@ -29,10 +25,43 @@ function addToCart(productId, productTitle, productPrice) {
       id: productId,
       title: productTitle,
       price: productPrice,
+      serviceFee: serviceFee || 0, // 新增服務費欄位
       quantity: 1,
+      notes: "", // 新增備註欄位
     });
   }
+  saveCart(cart);
+}
 
-  // 存回 localStorage
+// 更新購物車中商品的數量
+function updateCartQuantity(productId, quantity) {
+  const cart = getCart();
+  const item = cart.find((item) => item.id === productId);
+  if (item) {
+    if (quantity > 0) {
+      item.quantity = quantity;
+    } else {
+      // 如果數量小於等於0，則移除該商品
+      removeFromCart(productId);
+      return; // 直接返回，因為 saveCart 會在 removeFromCart 中被呼叫
+    }
+  }
+  saveCart(cart);
+}
+
+// 更新購物車中商品的備註
+function updateCartNotes(productId, notes) {
+  const cart = getCart();
+  const item = cart.find((item) => item.id === productId);
+  if (item) {
+    item.notes = notes;
+  }
+  saveCart(cart);
+}
+
+// 從購物車移除商品
+function removeFromCart(productId) {
+  let cart = getCart();
+  cart = cart.filter((item) => item.id !== productId);
   saveCart(cart);
 }

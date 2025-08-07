@@ -1,78 +1,127 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 獲取所有需要的 DOM 元素 ---
-  const bankAccountEl = document.getElementById("bank-account");
   const copyBtn = document.getElementById("copy-btn");
   const confirmationInput = document.getElementById("confirmation-input");
   const submitBtn = document.getElementById("submit-btn");
   const paopaohuIdInput = document.getElementById("paopaohu-id");
   const lastFiveInput = document.getElementById("last-five");
   const cartItemsBody = document.getElementById("cart-items-body");
-  const cartTotalEl = document.getElementById("cart-total");
+  const cartSummaryEl = document.getElementById("cart-summary");
 
   const API_BASE_URL = "https://daigou-platform-api.onrender.com";
 
-  // --- 新功能：渲染購物車 ---
+  // --- 核心功能：渲染購物車 (已升級) ---
   function renderCart() {
-    const cart = getCart(); // 從 cart.js 獲取購物車資料
-    cartItemsBody.innerHTML = ""; // 清空現有列表
-    let totalAmount = 0;
+    const cart = getCart();
+    cartItemsBody.innerHTML = "";
+    let subtotal = 0;
+    let totalServiceFee = 0;
 
     if (cart.length === 0) {
       cartItemsBody.innerHTML =
-        '<tr><td colspan="4" style="text-align: center;">您的購物車是空的</td></tr>';
-      cartTotalEl.innerText = "訂單總額: $0 TWD";
-      return;
+        '<tr><td colspan="5" style="text-align: center;">您的購物車是空的</td></tr>';
+    } else {
+      cart.forEach((item) => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        totalServiceFee += (item.serviceFee || 0) * item.quantity;
+        const row = `
+              <tr>
+                  <td>
+                      <div class="cart-item-title">${item.title}</div>
+                      <input type="text" class="item-notes" data-id="${
+                        item.id
+                      }" placeholder="新增顏色、規格等備註..." value="${
+          item.notes || ""
+        }">
+                  </td>
+                  <td>$${item.price}</td>
+                  <td>
+                      <div class="quantity-input">
+                          <button class="quantity-btn" data-id="${
+                            item.id
+                          }" data-change="-1">-</button>
+                          <input type="text" value="${item.quantity}" readonly>
+                          <button class="quantity-btn" data-id="${
+                            item.id
+                          }" data-change="1">+</button>
+                      </div>
+                  </td>
+                  <td>$${itemTotal}</td>
+                  <td>
+                      <button class="cart-item-remove" data-id="${
+                        item.id
+                      }">&times;</button>
+                  </td>
+              </tr>
+          `;
+        cartItemsBody.insertAdjacentHTML("beforeend", row);
+      });
     }
 
-    cart.forEach((item) => {
-      const row = `
-                <tr>
-                    <td>${item.title}</td>
-                    <td>$${item.price}</td>
-                    <td>${item.quantity}</td>
-                    <td>$${item.price * item.quantity}</td>
-                </tr>
-            `;
-      cartItemsBody.insertAdjacentHTML("beforeend", row);
-      totalAmount += item.price * item.quantity;
-    });
-
-    cartTotalEl.innerText = `訂單總額: $${totalAmount} TWD`;
+    const finalTotal = subtotal + totalServiceFee;
+    // 修改點：加入服務費，更新總計顯示
+    cartSummaryEl.innerHTML = `
+        <div style="font-size: 1em; color: #6c757d;">商品總額: $${subtotal} TWD</div>
+        <div style="font-size: 1em; color: #6c757d;">服務費總額: $${totalServiceFee} TWD</div>
+        <div style="font-size: 1.2em; font-weight: bold; margin-top: 10px;">訂單總金額: $${finalTotal} TWD</div>
+    `;
   }
 
-  // --- 功能1: 一鍵複製銀行帳號 ---
+  // --- 新增：購物車互動事件監聽 ---
+  cartItemsBody.addEventListener("click", (event) => {
+    const target = event.target;
+    if (target.classList.contains("quantity-btn")) {
+      const productId = target.dataset.id;
+      const change = parseInt(target.dataset.change, 10);
+      const cart = getCart();
+      const item = cart.find((i) => i.id === productId);
+      if (item) {
+        updateCartQuantity(productId, item.quantity + change);
+        renderCart();
+      }
+    }
+    if (target.classList.contains("cart-item-remove")) {
+      if (confirm("您確定要從購物車移除此商品嗎？")) {
+        const productId = target.dataset.id;
+        removeFromCart(productId);
+        renderCart();
+      }
+    }
+  });
+
+  cartItemsBody.addEventListener("change", (event) => {
+    if (event.target.classList.contains("item-notes")) {
+      const productId = event.target.dataset.id;
+      const notes = event.target.value;
+      updateCartNotes(productId, notes);
+    }
+  });
+
+  // --- 其他功能 (複製、啟用按鈕、提交訂單) ---
   copyBtn.addEventListener("click", () => {
-    navigator.clipboard.writeText(bankAccountEl.innerText).then(
-      () => {
+    navigator.clipboard
+      .writeText(document.getElementById("bank-account").innerText)
+      .then(() => {
         copyBtn.innerText = "已複製!";
         setTimeout(() => {
           copyBtn.innerText = "一鍵複製";
         }, 2000);
-      },
-      (err) => {
-        alert("複製失敗: " + err);
-      }
-    );
+      });
   });
 
-  // --- 功能2: 驗證「我了解」以啟用按鈕 ---
   confirmationInput.addEventListener("input", () => {
     if (confirmationInput.value.trim() === "我了解") {
       submitBtn.disabled = false;
       submitBtn.classList.remove("disabled");
-      submitBtn.classList.add("enabled");
     } else {
       submitBtn.disabled = true;
-      submitBtn.classList.remove("enabled");
       submitBtn.classList.add("disabled");
     }
   });
 
-  // --- 功能3: 真正的下單按鈕點擊事件 ---
+  // 修改點：提交訂單時，使用最新的購物車資料和總額計算
   submitBtn.addEventListener("click", async (event) => {
-    event.preventDefault(); // 防止表單預設提交行為
-
-    // 1. 驗證必填欄位
+    event.preventDefault();
     const paopaohuId = paopaohuIdInput.value.trim();
     const lastFiveDigits = lastFiveInput.value.trim();
     const cart = getCart();
@@ -81,50 +130,33 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("請務必填寫跑跑虎會員編號與匯款末五碼！");
       return;
     }
-
     if (cart.length === 0) {
       alert("您的購物車是空的，無法建立訂單！");
       return;
     }
 
-    // 2. 從購物車資料計算總金額
     const totalAmount = cart.reduce(
-      (sum, item) => sum + item.price * item.quantity,
+      (sum, item) =>
+        sum +
+        item.price * item.quantity +
+        (item.serviceFee || 0) * item.quantity,
       0
     );
 
-    // 3. 組合要發送到後端的訂單資料
-    const orderData = {
-      paopaohuId: paopaohuId,
-      lastFiveDigits: lastFiveDigits,
-      totalAmount: totalAmount,
-      items: cart, // 使用從 localStorage 來的真實購物車商品
-    };
+    const orderData = { paopaohuId, lastFiveDigits, totalAmount, items: cart };
 
-    // 4. 使用 fetch 發送 POST 請求到後端
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
       });
-
       const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "建立訂單失敗");
 
-      if (!response.ok) {
-        // 如果後端回傳錯誤 (例如 400, 500)
-        throw new Error(result.message || "建立訂單失敗");
-      }
-
-      // 訂單建立成功！
       alert(`訂單建立成功！\n您的訂單編號是: ${result.order.orderId}`);
-
-      localStorage.removeItem("shoppingCart"); // 清空 localStorage 的購物車
-      renderCart(); // 重新渲染空的購物車畫面
-      paopaohuIdInput.value = ""; // 清空表單欄位
-      lastFiveInput.value = "";
+      localStorage.removeItem("shoppingCart");
+      window.location.reload(); // 重新載入頁面以清空所有內容
     } catch (error) {
       console.error("訂單提交錯誤:", error);
       alert(`訂單提交時發生錯誤: ${error.message}`);

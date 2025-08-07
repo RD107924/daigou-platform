@@ -10,24 +10,25 @@ document.addEventListener("DOMContentLoaded", () => {
       productGrid.innerHTML = "";
       products.forEach((product) => {
         const cardHTML = `
-                    <div class="product-card">
-                        <img src="${product.imageUrl}" alt="${product.title}">
-                        <div class="product-info">
-                            <span class="product-category">${product.category}</span>
-                            <h3 class="product-title">${product.title}</h3>
-                            <p class="product-price">$${product.price} TWD</p>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn btn-secondary">查看詳情</button>
-                            <button class="btn btn-primary btn-add-to-cart" 
-                                data-id="${product.id}" 
-                                data-title="${product.title}" 
-                                data-price="${product.price}">
-                                加入購物車
-                            </button>
-                        </div>
-                    </div>
-                `;
+              <div class="product-card">
+                  <img src="${product.imageUrl}" alt="${product.title}">
+                  <div class="product-info">
+                      <span class="product-category">${product.category}</span>
+                      <h3 class="product-title">${product.title}</h3>
+                      <p class="product-price">$${product.price} TWD</p>
+                  </div>
+                  <div class="product-actions">
+                      <button class="btn btn-secondary">查看詳情</button>
+                      <button class="btn btn-primary btn-add-to-cart" 
+                          data-id="${product.id}" 
+                          data-title="${product.title}" 
+                          data-price="${product.price}"
+                          data-servicefee="${product.serviceFee || 0}">
+                          加入購物車
+                      </button>
+                  </div>
+              </div>
+              `;
         productGrid.insertAdjacentHTML("beforeend", cardHTML);
       });
     } catch (error) {
@@ -36,17 +37,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 新增功能：監聽整個商品網格的點擊事件
+  // 修改點：現在 addToCart 會傳遞 serviceFee
   productGrid.addEventListener("click", (event) => {
-    // 檢查被點擊的是否為「加入購物車」按鈕
     if (event.target.classList.contains("btn-add-to-cart")) {
       const button = event.target;
       const productId = button.dataset.id;
       const productTitle = button.dataset.title;
       const productPrice = parseInt(button.dataset.price, 10);
+      const serviceFee = parseInt(button.dataset.servicefee, 10);
 
       // 呼叫我們在 cart.js 中定義的函式
-      addToCart(productId, productTitle, productPrice);
+      addToCart(productId, productTitle, productPrice, serviceFee);
 
       alert(`「${productTitle}」已加入購物車！`);
     }
