@@ -5,7 +5,7 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const adapter = new JSONFile("/dataa/db.json");
+const adapter = new JSONFile("/data/db.json");
 const defaultData = { products: [], orders: [], users: [] };
 const db = new Low(adapter, defaultData);
 await db.read();
@@ -17,32 +17,25 @@ db.data.users = db.data.users || [];
 
 const app = express();
 const port = 3000;
-const JWT_SECRET = "your_super_secret_key_12345";
+const JWT_SECRET = "your_super_secret_key_12345_and_make_it_long";
 
 app.use(cors());
 app.use(express.json());
 
-// --- 新增：路由守衛中介軟體 ---
+// --- 路由守衛中介軟體 ---
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // 格式: "Bearer TOKEN"
-
-  if (token == null) {
-    return res.sendStatus(401); // Unauthorized - 未提供 token
-  }
+  const token = authHeader && authHeader.split(" ")[1];
+  if (token == null) return res.sendStatus(401);
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.sendStatus(403); // Forbidden - token 無效或過期
-    }
+    if (err) return res.sendStatus(403);
     req.user = user;
     next();
   });
 }
 
-// --- API 路由 ---
-
-// << 公開 API (Public Routes) >>
+// --- 公開 API (Public Routes) ---
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -94,7 +87,7 @@ app.post("/api/orders", async (req, res) => {
   }
 });
 
-// << 保護 API (Protected Routes) - 只有登入後才能訪問 >>
+// --- 保護 API (Protected Routes) ---
 app.post("/api/products", authenticateToken, async (req, res) => {
   const newProduct = { id: `p${Date.now()}`, ...req.body };
   db.data.products.push(newProduct);
@@ -152,7 +145,6 @@ app.patch(
   }
 );
 
-// 啟動伺服器
 app.listen(port, () => {
   console.log(`伺服器成功啟動！正在監聽 http://localhost:${port}`);
 });

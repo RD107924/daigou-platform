@@ -1,5 +1,13 @@
 {
-  "products": [],
+  "products": [
+    {
+      "id": "p001",
+      "category": "華強北專區",
+      "title": "頂配版 華強北藍牙耳機 Pro 2",
+      "price": 900,
+      "imageUrl": "https://via.placeholder.com/300x200.png?text=AirPods+Pro"
+    }
+  ],
   "orders": [],
   "users": [
     {

@@ -1,10 +1,24 @@
-/* 基本樣式 */
+/* --- 淡橘色主題 --- */
+:root {
+  --bg-color: #fff5eb; /* 非常淡的橘色/米色背景 */
+  --primary-color: #ff9800; /* 主題橘色 */
+  --primary-hover-color: #fb8c00; /* 滑鼠懸停時的深橘色 */
+  --header-bg: #4e342e; /* 深棕色頁首 */
+  --text-color: #333;
+  --text-light: #fff;
+  --border-color: #ffe0b2; /* 較淺的橘色邊框 */
+  --danger-color: #dc3545;
+  --success-color: #28a745;
+}
+
 body {
   font-family: "Helvetica Neue", "微軟正黑體", "Microsoft JhengHei", sans-serif;
-  background-color: #f4f4f4;
+  background-color: var(--bg-color);
   margin: 0;
   padding: 20px;
+  color: var(--text-color);
 }
+
 .container {
   width: 100%;
   max-width: 800px;
@@ -12,209 +26,59 @@ body {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
+
 h1,
 h2 {
-  color: #333;
-  border-bottom: 2px solid #eee;
+  color: var(--header-bg);
+  border-bottom: 2px solid var(--border-color);
   padding-bottom: 10px;
 }
 
-/* 表單與輸入框樣式 */
-.form-group {
-  margin-bottom: 20px;
-}
-label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #555;
-}
-input[type="text"] {
-  width: calc(100% - 20px);
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-}
-
-/* 購物車樣式 */
-.cart-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-.cart-table th,
-.cart-table td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
-}
-.cart-table th {
-  background-color: #f8f8f8;
-}
-.cart-total {
-  text-align: right;
-  font-size: 1.2em;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-/* 付款資訊區塊 */
-.payment-info {
-  background-color: #eef7ff;
-  border: 1px solid #b3d7ff;
-  padding: 15px;
-  border-radius: 5px;
-}
-.payment-info p {
-  margin: 5px 0;
-  font-size: 1.1em;
-}
-#copy-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-left: 10px;
-  transition: background-color 0.3s;
-}
-#copy-btn:hover {
-  background-color: #0056b3;
-}
-
-/* 最終確認區塊 */
-.final-confirmation {
-  border: 2px solid #dc3545;
-  background-color: #fff3f4;
-  padding: 15px;
-  border-radius: 5px;
-  margin-top: 20px;
-}
-.final-confirmation p {
-  color: #dc3545;
-  font-weight: bold;
-  margin-top: 0;
-}
-#confirmation-input {
-  margin-top: 10px;
-}
-
-/* 下單按鈕 */
-#submit-btn {
-  display: block;
-  width: 100%;
-  padding: 15px;
-  font-size: 1.2em;
-  font-weight: bold;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: background-color 0.3s;
-}
-#submit-btn.enabled {
-  background-color: #28a745; /* 綠色 */
-}
-#submit-btn.disabled {
-  background-color: #a9a9a9; /* 灰色 */
-  cursor: not-allowed;
-}
-
-/* --- 追加的商品頁樣式 --- */
-
-/* 頁首樣式 (簡單版) */
+/* --- 頁首/導覽列 --- */
 .site-header {
-  background-color: #333;
-  color: white;
-  padding: 10px 20px;
+  background-color: var(--header-bg);
+  color: var(--text-light);
+  padding: 15px 30px;
   text-align: center;
-  margin-bottom: 20px;
+  margin: -20px -20px 20px -20px; /* 讓它填滿頂部 */
+  border-radius: 8px 8px 0 0;
 }
 .site-header nav a {
-  color: white;
+  color: var(--text-light);
   text-decoration: none;
   margin: 0 15px;
+  font-size: 1.1em;
 }
 .site-header nav a:hover {
   text-decoration: underline;
 }
-
-/* 商品網格容器 (使用 CSS Grid 實現響應式佈局) */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px; /* 卡片之間的間距 */
+.login-link {
+  background-color: var(--primary-color);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+.login-link:hover {
+  background-color: var(--primary-hover-color);
+  text-decoration: none;
+}
+.admin-nav {
+  margin-bottom: 20px;
+}
+.admin-nav a {
+  margin-right: 20px;
+  text-decoration: none;
+  color: var(--primary-color);
+}
+.admin-nav a:hover {
+  text-decoration: underline;
+}
+#logout-btn {
+  cursor: pointer;
 }
 
-/* 商品卡片本體 */
-.product-card {
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* 商品圖片 */
-.product-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-/* 商品資訊區 (標題、價格等) */
-.product-info {
-  padding: 15px;
-  flex-grow: 1;
-}
-
-/* 商品分類標籤 */
-.product-category {
-  font-size: 12px;
-  color: #fff;
-  background-color: #007bff;
-  padding: 3px 8px;
-  border-radius: 12px;
-  display: inline-block;
-  margin-bottom: 10px;
-}
-
-/* 商品標題 */
-.product-title {
-  font-size: 1.1em;
-  font-weight: 600;
-  margin: 0 0 10px 0;
-  color: #333;
-}
-
-/* 商品價格 */
-.product-price {
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #28a745;
-  margin: 0;
-}
-
-/* 商品按鈕區 */
-.product-actions {
-  padding: 0 15px 15px 15px;
-  display: flex;
-  gap: 10px;
-}
-
-/* 通用按鈕樣式 */
+/* --- 按鈕 --- */
 .btn {
   width: 100%;
   padding: 10px;
@@ -226,11 +90,11 @@ input[type="text"] {
   transition: background-color 0.2s;
 }
 .btn-primary {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--text-light);
 }
 .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: var(--primary-hover-color);
 }
 .btn-secondary {
   background-color: #e9ecef;
@@ -240,41 +104,151 @@ input[type="text"] {
 .btn-secondary:hover {
   background-color: #d3d9df;
 }
-/* --- 追加的後台管理樣式 --- */
 
+/* --- 商品卡片 --- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+.product-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+.product-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+.product-info {
+  padding: 15px;
+  flex-grow: 1;
+}
+.product-category {
+  font-size: 12px;
+  color: var(--text-light);
+  background-color: var(--primary-color);
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.product-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: #333;
+}
+.product-price {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: var(--success-color);
+  margin: 0;
+}
+.product-actions {
+  padding: 0 15px 15px 15px;
+  display: flex;
+  gap: 10px;
+}
+
+/* --- 結帳與表單 --- */
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+.cart-table th,
+.cart-table td {
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  text-align: left;
+}
+.cart-table th {
+  background-color: #fff5eb;
+}
+.cart-total {
+  text-align: right;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.payment-info {
+  background-color: #fffaf0;
+  border: 1px solid var(--primary-color);
+  padding: 15px;
+  border-radius: 5px;
+}
+.final-confirmation {
+  border: 2px solid var(--danger-color);
+  background-color: #fff3f4;
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+#submit-btn {
+  font-size: 1.2em;
+}
+#submit-btn.enabled {
+  background-color: var(--success-color);
+}
+#submit-btn.disabled {
+  background-color: #a9a9a9;
+  cursor: not-allowed;
+}
+.form-group {
+  margin-bottom: 20px;
+}
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+input[type="text"],
+input[type="number"],
+input[type="password"] {
+  width: calc(100% - 22px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+/* --- 後台 --- */
 .admin-section {
   margin-top: 40px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-color);
 }
-
-.admin-form .form-group {
-  margin-bottom: 15px;
-}
-
 .admin-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 }
-
 .admin-table th,
 .admin-table td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   padding: 12px;
   text-align: left;
   vertical-align: middle;
 }
-
 .admin-table th {
-  background-color: #f8f8f8;
+  background-color: #fff5eb;
   font-weight: 600;
 }
-
 .admin-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: #fffdf9;
 }
-
 .btn-small {
   padding: 5px 10px;
   font-size: 14px;
@@ -282,32 +256,28 @@ input[type="text"] {
   border-radius: 4px;
   cursor: pointer;
   border: none;
+  color: var(--text-light);
 }
-
 .btn-danger {
-  background-color: #dc3545;
-  color: white;
+  background-color: var(--danger-color);
 }
 .btn-danger:hover {
   background-color: #c82333;
 }
-/* --- 追加的 Modal 樣式 --- */
-
 .modal {
-  display: none; /* 預設隱藏 */
-  position: fixed; /* 固定在畫面上 */
-  z-index: 1000; /* 顯示在最上層 */
+  display: none;
+  position: fixed;
+  z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto; /* 如果內容太長，允許滾動 */
-  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
 }
-
 .modal-content {
   background-color: #fefefe;
-  margin: 10% auto; /* 上下 10% 邊距，水平置中 */
+  margin: 10% auto;
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
@@ -315,7 +285,6 @@ input[type="text"] {
   border-radius: 8px;
   position: relative;
 }
-
 .modal-close-btn {
   color: #aaa;
   position: absolute;
@@ -325,7 +294,6 @@ input[type="text"] {
   font-weight: bold;
   cursor: pointer;
 }
-
 .modal-close-btn:hover,
 .modal-close-btn:focus {
   color: black;

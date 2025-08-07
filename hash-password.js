@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 
-const plainPassword = "randy1007"; // 您指定的密碼
-const saltRounds = 10; // 加密的複雜度，10 是個安全且常見的選擇
+const plainPassword = "randy1007";
+const saltRounds = 10;
 
 bcrypt.hash(plainPassword, saltRounds, function (err, hash) {
   if (err) {

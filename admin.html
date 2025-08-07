@@ -9,9 +9,10 @@
   <body>
     <div class="container">
       <h1>後台商品管理</h1>
-      <nav>
+      <nav class="admin-nav">
         <a href="admin.html"><strong>商品管理</strong></a>
         <a href="orders-admin.html">訂單管理</a>
+        <a href="#" id="logout-btn">登出</a>
       </nav>
 
       <section class="admin-section">
@@ -60,22 +61,21 @@
         <h2>編輯商品</h2>
         <form id="edit-product-form" class="admin-form">
           <input type="hidden" id="edit-product-id" />
-
           <div class="form-group">
-            <label for="edit-category">商品分類</label>
-            <input type="text" id="edit-category" required />
+            <label for="edit-category">商品分類</label
+            ><input type="text" id="edit-category" required />
           </div>
           <div class="form-group">
-            <label for="edit-title">商品名稱</label>
-            <input type="text" id="edit-title" required />
+            <label for="edit-title">商品名稱</label
+            ><input type="text" id="edit-title" required />
           </div>
           <div class="form-group">
-            <label for="edit-price">台幣價格</label>
-            <input type="number" id="edit-price" required />
+            <label for="edit-price">台幣價格</label
+            ><input type="number" id="edit-price" required />
           </div>
           <div class="form-group">
-            <label for="edit-imageUrl">圖片網址</label>
-            <input type="text" id="edit-imageUrl" required />
+            <label for="edit-imageUrl">圖片網址</label
+            ><input type="text" id="edit-imageUrl" required />
           </div>
           <button type="submit" class="btn btn-primary">儲存變更</button>
         </form>
