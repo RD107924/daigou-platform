@@ -13,7 +13,8 @@
         <a href="index.html" class="nav-link">回到商店</a>
         <a href="admin.html"><strong>商品管理</strong></a>
         <a href="orders-admin.html">訂單管理</a>
-        <a href="profile.html">修改密碼</a> <a href="#" id="logout-btn">登出</a>
+        <a href="profile.html">修改密碼</a>
+        <a href="#" id="logout-btn">登出</a>
       </nav>
 
       <section class="admin-section">
@@ -28,8 +29,18 @@
             <input type="text" id="title" name="title" required />
           </div>
           <div class="form-group">
-            <label for="price">台幣價格</label>
+            <label for="price">台幣價格 (已含服務費的最終售價)</label>
             <input type="number" id="price" name="price" required />
+          </div>
+          <div class="form-group">
+            <label for="serviceFee">代購服務費 (台幣)</label>
+            <input
+              type="number"
+              id="serviceFee"
+              name="serviceFee"
+              value="0"
+              required
+            />
           </div>
           <div class="form-group">
             <label for="imageUrl">圖片網址</label>
@@ -47,7 +58,8 @@
               <th>ID</th>
               <th>分類</th>
               <th>名稱</th>
-              <th>價格</th>
+              <th>最終售價</th>
+              <th>服務費</th>
               <th>操作</th>
             </tr>
           </thead>
@@ -63,20 +75,24 @@
         <form id="edit-product-form" class="admin-form">
           <input type="hidden" id="edit-product-id" />
           <div class="form-group">
-            <label for="edit-category">商品分類</label
-            ><input type="text" id="edit-category" required />
+            <label for="edit-category">商品分類</label>
+            <input type="text" id="edit-category" required />
           </div>
           <div class="form-group">
-            <label for="edit-title">商品名稱</label
-            ><input type="text" id="edit-title" required />
+            <label for="edit-title">商品名稱</label>
+            <input type="text" id="edit-title" required />
           </div>
           <div class="form-group">
-            <label for="edit-price">台幣價格</label
-            ><input type="number" id="edit-price" required />
+            <label for="edit-price">台幣價格 (最終售價)</label>
+            <input type="number" id="edit-price" required />
           </div>
           <div class="form-group">
-            <label for="edit-imageUrl">圖片網址</label
-            ><input type="text" id="edit-imageUrl" required />
+            <label for="edit-serviceFee">代購服務費 (台幣)</label>
+            <input type="number" id="edit-serviceFee" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-imageUrl">圖片網址</label>
+            <input type="text" id="edit-imageUrl" required />
           </div>
           <button type="submit" class="btn btn-primary">儲存變更</button>
         </form>

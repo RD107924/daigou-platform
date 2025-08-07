@@ -1,23 +1,63 @@
 {
   "products": [
     {
-      "id": "p001",
+      "id": "p1722096789123",
       "category": "華強北專區",
       "title": "頂配版 華強北藍牙耳機 Pro 2",
       "price": 900,
-      "imageUrl": "https://via.placeholder.com/300x200.png?text=AirPods+Pro"
+      "imageUrl": "https://via.placeholder.com/300x200.png?text=AirPods+Pro",
+      "serviceFee": 100
+    },
+    {
+      "id": "p1722096812345",
+      "category": "廣州服飾",
+      "title": "重磅純棉素T (多色)",
+      "price": 1250,
+      "imageUrl": "https://via.placeholder.com/300x200.png?text=T-Shirt",
+      "serviceFee": 150
     }
   ],
-  "orders": [],
+  "orders": [
+    {
+      "orderId": "ord_1722096854321",
+      "createdAt": "2025-08-07T16:54:14.321Z",
+      "status": "待處理",
+      "paopaohuId": "TWB123456",
+      "lastFiveDigits": "54321",
+      "totalAmount": 2150,
+      "items": [
+        {
+          "id": "p1722096789123",
+          "title": "頂配版 華強北藍牙耳機 Pro 2",
+          "price": 900,
+          "quantity": 1
+        },
+        {
+          "id": "p1722096812345",
+          "title": "重磅純棉素T (多色)",
+          "price": 1250,
+          "quantity": 1
+        }
+      ]
+    }
+  ],
   "users": [
     {
       "username": "randy",
-      "passwordHash": "$2b$10$rsfWFYTSTgLV.9nmwXOM9.ibnXs0vCLW0y8vosbWMQEFTS7XexJqK"
+      "passwordHash": "$2b$10$A4kzdjiTvIsmq5CBCrdhL.SeZz9VQE4flCekjf.Qf488dqD6pWANO"
+    }
+  ],
+  "requests": [
+    {
+      "requestId": "req_1722096898765",
+      "receivedAt": "2025-08-07T16:54:58.765Z",
+      "status": "待報價",
+      "productUrl": "https://item.taobao.com/item.htm?id=123456789",
+      "productName": "範例淘寶商品",
+      "specs": "大號、紅色",
+      "quantity": 2,
+      "contactInfo": "我的LINE ID是 mylineid",
+      "notes": "希望能盡快報價，謝謝！"
     }
   ]
-}{
-  "products": [ ... ],
-  "orders": [ ... ],
-  "users": [ ... ],
-  "requests": []
 }
