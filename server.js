@@ -5,7 +5,6 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// 部署時使用 /data/db.json，本地開發時使用 db.json
 const adapter = new JSONFile(
   process.env.NODE_ENV === "production" ? "/data/db.json" : "db.json"
 );
@@ -13,12 +12,28 @@ const defaultData = { products: [], orders: [], users: [], requests: [] };
 const db = new Low(adapter, defaultData);
 await db.read();
 
-// 防呆機制，確保所有資料陣列都存在
 db.data = db.data || defaultData;
 db.data.products = db.data.products || [];
 db.data.orders = db.data.orders || [];
 db.data.users = db.data.users || [];
 db.data.requests = db.data.requests || [];
+
+// =================================================================
+// --- 暫時性的密碼修正程式 (TEMPORARY PASSWORD FIX SCRIPT) ---
+// =================================================================
+const correctPasswordHash =
+  "$2b$10$VEbET.eFrrkNSuwfPFV.J.FVOvM3RplQtE0/60PQe.3Tr8y1qbHd2"; // 這是您產生的正確雜湊值
+const adminUser = db.data.users.find((u) => u.username === "randy");
+
+if (adminUser && adminUser.passwordHash !== correctPasswordHash) {
+  console.log("!!! 偵測到管理者密碼不符，正在強制更新...");
+  adminUser.passwordHash = correctPasswordHash;
+  await db.write();
+  console.log("!!! 管理者密碼已成功更新至最新版本。");
+}
+// =================================================================
+// --- 修正程式結束 ---
+// =================================================================
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -121,21 +136,17 @@ app.post("/api/requests", async (req, res) => {
   }
 });
 
-// **--- 新增的 API 在這裡 ---**
 // 根據跑跑虎ID查詢訂單
 app.get("/api/orders/lookup", async (req, res) => {
   try {
-    const { paopaohuId } = req.query; // 從查詢字串 ?paopaohuId=... 獲取
+    const { paopaohuId } = req.query;
     if (!paopaohuId) {
       return res.status(400).json({ message: "請提供跑跑虎會員編號" });
     }
-
-    // 從訂單陣列中篩選出符合的訂單
     const foundOrders = db.data.orders.filter(
       (order) => order.paopaohuId === paopaohuId
     );
-
-    res.json(foundOrders.reverse()); // 將最新的訂單排在前面
+    res.json(foundOrders.reverse());
   } catch (error) {
     console.error("查詢訂單時發生錯誤:", error);
     res.status(500).json({ message: "伺服器內部錯誤" });
