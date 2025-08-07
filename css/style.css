@@ -1,18 +1,20 @@
-/* --- 主題樣式 --- */
+/* --- 淡橘色主題 V3 --- */
 :root {
-  --bg-color: #f8f9fa;
-  --primary-color: #007bff;
-  --primary-hover-color: #0056b3;
+  --bg-color: #fff8f0; /* 更柔和的米色背景 */
+  --primary-color: #f57c00; /* 主題橘色 (更溫暖) */
+  --primary-hover-color: #e65100; /* 滑鼠懸停時的深橘色 */
   --header-bg: #ffffff;
-  --header-text-color: #343a40;
-  --text-color: #495057;
-  --border-color: #dee2e6;
+  --header-text-color: #4e342e; /* 深棕色文字 */
+  --text-color: #424242;
+  --text-light: #616161; /* 較淺的文字顏色 */
+  --border-color: #ffe0b2;
   --card-bg: #ffffff;
-  --success-color: #28a745;
-  --danger-color: #dc3545;
+  --success-color: #4caf50;
+  --danger-color: #d9534f;
+  --link-color: #0275d8;
 }
 
-/* --- 全域設定 --- */
+/* --- 全域與基本設定 --- */
 *,
 *::before,
 *::after {
@@ -35,15 +37,17 @@ body {
 h1,
 h2,
 h3 {
-  color: #343a40;
+  color: var(--header-text-color);
   margin-top: 0;
 }
 a {
-  color: var(--primary-color);
+  color: var(--link-color);
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 a:hover {
-  text-decoration: underline;
+  color: var(--primary-hover-color);
+  text-decoration: none;
 }
 
 /* --- 頁首/導覽列 --- */
@@ -51,7 +55,10 @@ a:hover {
   background-color: var(--header-bg);
   padding: 15px 0;
   width: 100%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1020;
 }
 .header-content {
   width: 90%;
@@ -83,10 +90,11 @@ a:hover {
 .important-reminder {
   background-color: #fff3cd;
   color: #856404;
-  border: 1px solid #ffeeba;
+  border-left: 5px solid #ffeeba;
   border-radius: 8px;
   padding: 25px;
   margin-bottom: 40px;
+  box-shadow: 0 4px 15px rgba(255, 224, 178, 0.5);
 }
 .important-reminder h3 {
   margin-top: 0;
@@ -98,7 +106,7 @@ a:hover {
   line-height: 1.8;
 }
 .important-reminder a {
-  color: var(--primary-color);
+  color: var(--link-color);
   text-decoration: none;
   font-weight: bold;
 }
@@ -111,7 +119,7 @@ a:hover {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
-/* --- 商品卡片 --- */
+/* --- 商品卡片 (手機版優化) --- */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -120,7 +128,7 @@ a:hover {
 .product-card {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   display: flex;
@@ -139,25 +147,39 @@ a:hover {
 .product-info {
   padding: 20px;
   flex-grow: 1;
-  text-align: center;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+.product-category {
+  font-size: 0.8em;
+  color: var(--text-light);
+  margin-bottom: 8px;
 }
 .product-title {
-  font-size: 1.1em;
+  font-size: 1.2em;
   font-weight: 600;
   margin: 0 0 10px 0;
+  flex-grow: 1;
 }
 .product-price {
-  font-size: 1.3em;
+  font-size: 1.4em;
   font-weight: bold;
   color: var(--text-color);
-  margin: 15px 0;
+  margin-top: 10px;
+}
+.service-fee {
+  font-size: 0.9em;
+  color: var(--text-light);
+  margin-top: -5px;
+  margin-bottom: 15px;
 }
 .btn-primary {
   background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 12px;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 1em;
   font-weight: bold;
@@ -169,6 +191,9 @@ a:hover {
 }
 .btn-primary:hover {
   background-color: var(--primary-hover-color);
+}
+.product-actions {
+  padding: 0 20px 20px 20px;
 }
 
 /* --- LINE 懸浮按鈕 --- */
@@ -187,7 +212,7 @@ a:hover {
   height: auto;
 }
 
-/* --- 結帳頁面新樣式 --- */
+/* --- 結帳頁面 --- */
 .checkout-container {
   max-width: 800px;
   margin: 40px auto;
@@ -270,9 +295,12 @@ a:hover {
 .cart-summary {
   text-align: right;
   padding-top: 20px;
-  font-size: 1.2em;
-  font-weight: bold;
+  font-size: 1.1em;
   color: #343a40;
+  line-height: 2;
+}
+.cart-summary strong {
+  font-size: 1.2em;
 }
 .payment-details p {
   margin: 20px 0;
@@ -296,17 +324,18 @@ a:hover {
   margin-bottom: 8px;
   font-weight: bold;
 }
-.form-group input {
+.form-group input,
+.form-group textarea {
   width: 100%;
   padding: 12px;
   border: 1px solid #ced4da;
   border-radius: 5px;
   font-size: 1em;
+  font-family: inherit;
 }
 .final-confirmation {
   background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  border-radius: 8px;
+  border-left: 5px solid #ffeeba;
   padding: 20px;
 }
 .final-confirmation label {
@@ -341,7 +370,8 @@ a:hover {
   text-decoration: none;
   font-size: 0.9em;
 }
-/* --- 訂單查詢結果樣式 --- */
+
+/* --- 訂單查詢結果 --- */
 .lookup-results-container {
   margin-top: 30px;
 }
@@ -352,7 +382,6 @@ a:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border-color);
   padding-bottom: 15px;
   margin-bottom: 15px;
 }
@@ -363,8 +392,8 @@ a:hover {
   padding: 0;
 }
 .order-status {
-  background-color: var(--secondary-color);
-  color: var(--header-text-color);
+  background-color: var(--primary-color);
+  color: white;
   padding: 5px 15px;
   border-radius: 20px;
   font-weight: bold;
@@ -381,16 +410,59 @@ a:hover {
   color: var(--danger-color);
   font-weight: bold;
 }
-/* --- 商品卡片服務費樣式 --- */
-.service-fee {
-  font-size: 0.9em;
-  color: #6c757d; /* 灰色文字 */
-  margin-top: 5px;
-  margin-bottom: 15px;
+
+/* --- 後台管理頁面 --- */
+.admin-nav {
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 15px;
+}
+.admin-nav a {
+  margin-right: 20px;
+  text-decoration: none;
+  color: var(--text-light);
+  font-weight: bold;
+}
+.admin-nav a.nav-link {
+  color: var(--link-color);
+}
+.admin-nav a:hover {
+  color: var(--primary-color);
+}
+.admin-nav strong {
+  color: var(--header-text-color);
+}
+#logout-btn {
+  cursor: pointer;
+  color: var(--danger-color);
 }
 
-/* --- 結帳頁面表格微調 --- */
-.cart-table th,
-.cart-table td {
-  padding: 15px 10px; /* 稍微調整間距 */
+/* --- 手機版響應式設計 --- */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+  }
+  .main-nav {
+    margin-top: 15px;
+  }
+  .main-nav a {
+    margin: 0 10px;
+  }
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 優化手機版商品卡片 */
+  .product-info {
+    text-align: left;
+  }
+  .product-title {
+    font-size: 1.1em;
+  }
+  .product-price {
+    font-size: 1.2em;
+  }
+  .service-fee {
+    margin-bottom: 10px;
+  }
 }
