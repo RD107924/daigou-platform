@@ -1,19 +1,18 @@
-/* --- 淡橘色主題 V2 --- */
+/* --- 主題樣式 --- */
 :root {
-  --bg-color: #f8f9fa; /* 改為更中性的淺灰色背景 */
-  --primary-color: #007bff; /* 主題色改為專業的藍色 */
-  --primary-hover-color: #0056b3; /* 滑鼠懸停時的深藍色 */
-  --secondary-color: #ffc107; /* 輔助色 - 黃色 */
-  --header-bg: #ffffff; /* 頁首改為白色 */
-  --header-text-color: #343a40; /* 頁首文字顏色 */
-  --text-color: #495057; /* 主要文字顏色 */
-  --border-color: #dee2e6; /* 邊框顏色 */
+  --bg-color: #f8f9fa;
+  --primary-color: #007bff;
+  --primary-hover-color: #0056b3;
+  --header-bg: #ffffff;
+  --header-text-color: #343a40;
+  --text-color: #495057;
+  --border-color: #dee2e6;
   --card-bg: #ffffff;
   --success-color: #28a745;
   --danger-color: #dc3545;
 }
 
-/* --- 全域與基本設定 --- */
+/* --- 全域設定 --- */
 *,
 *::before,
 *::after {
@@ -31,12 +30,12 @@ body {
   width: 90%;
   max-width: 1140px;
   margin: 40px auto;
-  padding: 20px;
+  padding: 0;
 }
 h1,
 h2,
 h3 {
-  color: var(--header-text-color);
+  color: #343a40;
   margin-top: 0;
 }
 a {
@@ -86,7 +85,7 @@ a:hover {
   color: #856404;
   border: 1px solid #ffeeba;
   border-radius: 8px;
-  padding: 20px;
+  padding: 25px;
   margin-bottom: 40px;
 }
 .important-reminder h3 {
@@ -95,7 +94,7 @@ a:hover {
   font-size: 1.2em;
 }
 .important-reminder p {
-  margin: 10px 0 0 0;
+  margin: 12px 0 0 0;
   line-height: 1.8;
 }
 .important-reminder a {
@@ -140,6 +139,7 @@ a:hover {
 .product-info {
   padding: 20px;
   flex-grow: 1;
+  text-align: center;
 }
 .product-title {
   font-size: 1.1em;
@@ -150,7 +150,7 @@ a:hover {
   font-size: 1.3em;
   font-weight: bold;
   color: var(--text-color);
-  margin: auto 0 0 0;
+  margin: 15px 0;
 }
 .btn-primary {
   background-color: var(--primary-color);
@@ -176,14 +176,6 @@ a:hover {
   position: fixed;
   bottom: 25px;
   right: 25px;
-  background-color: #06c755;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   transition: transform 0.3s ease;
 }
@@ -191,11 +183,11 @@ a:hover {
   transform: scale(1.1);
 }
 .line-fab img {
-  width: 36px;
-  height: 36px;
+  width: 130px;
+  height: auto;
 }
 
-/* --- 結帳頁面 --- */
+/* --- 結帳頁面新樣式 --- */
 .checkout-container {
   max-width: 800px;
   margin: 40px auto;
@@ -228,38 +220,44 @@ a:hover {
   border-collapse: collapse;
 }
 .cart-table thead {
-  border-bottom: 2px solid var(--text-color);
+  border-bottom: 2px solid #6c757d;
 }
 .cart-table th {
   text-align: left;
   padding: 10px 5px;
-  color: #888;
+  color: #6c757d;
   font-weight: normal;
+  text-transform: uppercase;
+  font-size: 0.9em;
 }
 .cart-table td {
   padding: 20px 5px;
   border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
 }
 .cart-item-title {
   font-weight: bold;
+  font-size: 1.1em;
 }
 .quantity-input {
   display: flex;
   align-items: center;
 }
-.quantity-input button {
-  background: #eee;
-  border: 1px solid #ccc;
-  width: 30px;
-  height: 30px;
+.quantity-btn {
+  background: #f1f3f5;
+  border: 1px solid #ced4da;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
+  font-size: 1.2em;
 }
 .quantity-input input {
-  width: 40px;
+  width: 45px;
   text-align: center;
-  border: 1px solid #ccc;
-  height: 30px;
+  border: 1px solid #ced4da;
+  height: 32px;
   margin: 0 5px;
+  font-size: 1em;
 }
 .cart-item-remove {
   background: none;
@@ -267,6 +265,7 @@ a:hover {
   color: var(--danger-color);
   font-size: 1.5em;
   cursor: pointer;
+  padding: 0 10px;
 }
 .cart-summary {
   text-align: right;
@@ -276,10 +275,11 @@ a:hover {
   color: #343a40;
 }
 .payment-details p {
-  margin: 15px 0;
+  margin: 20px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 1.1em;
 }
 #copy-btn {
   background: #e9ecef;
@@ -289,7 +289,7 @@ a:hover {
   cursor: pointer;
 }
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 .form-group label {
   display: block;
@@ -299,7 +299,7 @@ a:hover {
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #ced4da;
   border-radius: 5px;
   font-size: 1em;
 }
