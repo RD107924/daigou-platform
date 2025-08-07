@@ -21,18 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       cart.forEach((item) => {
         const serviceFee = item.serviceFee || 0;
-
-        // --- 這裡是唯一的修改點 ---
-        // 為了顯示在「小計」欄位，我們計算單項商品含服務費的總價
         const itemTotalForDisplay = (item.price + serviceFee) * item.quantity;
-
-        // 為了計算最下方的總金額，我們仍然分開計算商品總額和服務費總額
         subtotal += item.price * item.quantity;
         totalServiceFee += serviceFee * item.quantity;
 
         const row = `
               <tr>
-                  <td>
+                  <td data-label="商品名稱">
                       <div class="cart-item-title">${item.title}</div>
                       <input type="text" class="item-notes" data-id="${
                         item.id
@@ -40,9 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
           item.notes || ""
         }">
                   </td>
-                  <td>$${item.price}</td>
-                  <td>$${serviceFee}</td>
-                  <td>
+                  <td data-label="單價">$${item.price}</td>
+                  <td data-label="服務費">$${serviceFee}</td>
+                  <td data-label="數量">
                       <div class="quantity-input">
                           <button class="quantity-btn" data-id="${
                             item.id
@@ -53,8 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
                           }" data-change="1">+</button>
                       </div>
                   </td>
-                  <td>$${itemTotalForDisplay}</td>
-                  <td>
+                  <td data-label="小計">$${itemTotalForDisplay}</td>
+                  <td data-label="操作">
                       <button class="cart-item-remove" data-id="${
                         item.id
                       }">&times;</button>

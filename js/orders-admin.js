@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchAndRenderOrders() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
-        headers: authHeaders, // <--- 使用帶有 token 的 headers
+        headers: authHeaders,
       });
       if (!response.ok) throw new Error("無法獲取訂單列表");
       const orders = await response.json();
@@ -41,13 +41,19 @@ document.addEventListener("DOMContentLoaded", () => {
               }>${status}</option>`
           )
           .join("")}</select>`;
-        const row = `<tr><td>${order.orderId}</td><td>${new Date(
-          order.createdAt
-        ).toLocaleString()}</td><td>${order.paopaohuId} (末五碼: ${
+        const row = `
+            <tr>
+                <td data-label="訂單編號">${order.orderId}</td>
+                <td data-label="下單時間">${new Date(
+                  order.createdAt
+                ).toLocaleString()}</td>
+                <td data-label="跑跑虎編號">${order.paopaohuId} (末五碼: ${
           order.lastFiveDigits
-        })</td><td>$${
-          order.totalAmount
-        }</td><td><ul>${itemsHtml}</ul></td><td>${statusSelectHtml}</td></tr>`;
+        })</td>
+                <td data-label="總金額">$${order.totalAmount}</td>
+                <td data-label="商品詳情"><ul>${itemsHtml}</ul></td>
+                <td data-label="狀態">${statusSelectHtml}</td>
+            </tr>`;
         orderListBody.insertAdjacentHTML("beforeend", row);
       });
     } catch (error) {
@@ -65,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
           `${API_BASE_URL}/api/orders/${orderId}/status`,
           {
             method: "PATCH",
-            headers: authHeaders, // <--- 使用帶有 token 的 headers
+            headers: authHeaders,
             body: JSON.stringify({ status: newStatus }),
           }
         );
@@ -82,6 +88,11 @@ document.addEventListener("DOMContentLoaded", () => {
         fetchAndRenderOrders();
       }
     }
+  });
+
+  document.getElementById("logout-btn").addEventListener("click", () => {
+    localStorage.removeItem("authToken");
+    window.location.href = "login.html";
   });
 
   fetchAndRenderOrders();
