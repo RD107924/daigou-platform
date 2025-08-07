@@ -1,15 +1,15 @@
 /* --- 淡橘色主題 V2 --- */
 :root {
-  --bg-color: #fff5eb; /* 非常淡的橘色/米色背景 */
-  --primary-color: #ffa726; /* 主題橘色 (更柔和) */
-  --primary-hover-color: #fb8c00; /* 滑鼠懸停時的深橘色 */
-  --header-bg: #5d4037; /* 沉穩的深棕色頁首 */
-  --header-text-color: #ffffff; /* 頁首文字顏色 */
-  --text-color: #424242; /* 主要文字顏色 (深灰) */
-  --border-color: #ffe0b2; /* 較淺的橘色邊框 */
-  --card-bg: #ffffff; /* 卡片背景 */
-  --footer-bg: #f5f5f5; /* 頁尾背景 */
-  --success-color: #4caf50;
+  --bg-color: #f8f9fa; /* 改為更中性的淺灰色背景 */
+  --primary-color: #007bff; /* 主題色改為專業的藍色 */
+  --primary-hover-color: #0056b3; /* 滑鼠懸停時的深藍色 */
+  --secondary-color: #ffc107; /* 輔助色 - 黃色 */
+  --header-bg: #ffffff; /* 頁首改為白色 */
+  --header-text-color: #343a40; /* 頁首文字顏色 */
+  --text-color: #495057; /* 主要文字顏色 */
+  --border-color: #dee2e6; /* 邊框顏色 */
+  --card-bg: #ffffff;
+  --success-color: #28a745;
 }
 
 /* --- 全域與基本設定 --- */
@@ -18,41 +18,37 @@
 *::after {
   box-sizing: border-box;
 }
-
 body {
   font-family: "Helvetica Neue", "微軟正黑體", "Microsoft JhengHei", sans-serif;
   background-color: var(--bg-color);
   margin: 0;
   padding: 0;
   color: var(--text-color);
-  line-height: 1.6;
+  line-height: 1.7;
 }
-
 .container {
   width: 90%;
-  max-width: 1200px;
+  max-width: 1140px;
   margin: 40px auto;
   padding: 20px;
 }
-
 h1,
-h2 {
-  color: var(--header-bg);
-  border-bottom: 2px solid var(--primary-color);
-  padding-bottom: 10px;
+h2,
+h3 {
+  color: var(--header-text-color);
   margin-top: 0;
 }
 
 /* --- 頁首/導覽列 --- */
 .site-header {
   background-color: var(--header-bg);
-  color: var(--header-text-color);
-  padding: 20px 0;
+  padding: 15px 0;
   width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 .header-content {
   width: 90%;
-  max-width: 1200px;
+  max-width: 1140px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -60,35 +56,50 @@ h2 {
 }
 .site-title {
   margin: 0;
-  font-size: 2.2em;
-  color: var(--header-text-color); /* 確保標題是淺色 */
-  border: 2px solid var(--primary-color);
-  padding: 5px 15px;
-  border-radius: 8px;
+  font-size: 1.8em;
+  color: var(--primary-color);
+  font-weight: bold;
 }
 .main-nav a {
   color: var(--header-text-color);
   text-decoration: none;
   margin: 0 15px;
-  font-size: 1.1em;
+  font-size: 1em;
   padding-bottom: 5px;
-  border-bottom: 2px solid transparent;
   transition: all 0.3s ease;
 }
 .main-nav a:hover {
   color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
 }
 
-/* --- 頁面區塊 --- */
-.page-section {
-  background-color: var(--card-bg);
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+/* --- 主頁提醒區塊 --- */
+.important-reminder {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 40px;
+}
+.important-reminder h3 {
+  margin-top: 0;
+  color: #856404;
+  font-size: 1.2em;
+}
+.important-reminder p {
+  margin: 10px 0 0 0;
+  line-height: 1.8;
+}
+.important-reminder a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+.important-reminder a:hover {
+  text-decoration: underline;
 }
 
-/* --- 商品卡片 --- */
+/* --- 商品卡片 (按鈕改為藍色) --- */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -96,17 +107,17 @@ h2 {
 }
 .product-card {
   background-color: var(--card-bg);
-  border: 1px solid #eee;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .product-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 .product-card img {
   width: 100%;
@@ -117,51 +128,193 @@ h2 {
   padding: 20px;
   flex-grow: 1;
 }
-.product-category {
-  font-size: 0.8em;
-  color: var(--header-text-color);
-  background-color: var(--primary-color);
-  padding: 4px 12px;
-  border-radius: 15px;
-  display: inline-block;
-  margin-bottom: 12px;
-}
 .product-title {
-  font-size: 1.2em;
+  font-size: 1.1em;
   font-weight: 600;
   margin: 0 0 10px 0;
-  color: var(--text-color);
 }
 .product-price {
   font-size: 1.3em;
   font-weight: bold;
-  color: var(--success-color);
+  color: var(--text-color);
   margin: auto 0 0 0;
-}
-.product-actions {
-  padding: 0 20px 20px 20px;
-  display: flex;
-  gap: 10px;
-}
-
-/* --- 按鈕 --- */
-.btn {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  transition: all 0.3s ease;
 }
 .btn-primary {
   background-color: var(--primary-color);
-  color: var(--header-text-color);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 .btn-primary:hover {
   background-color: var(--primary-hover-color);
-  transform: scale(1.05);
+}
+
+/* --- LINE 懸浮按鈕 --- */
+.line-fab {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background-color: #06c755;
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+.line-fab:hover {
+  transform: scale(1.1);
+}
+.line-fab img {
+  width: 36px;
+  height: 36px;
+}
+
+/* --- 結帳頁面新樣式 --- */
+.checkout-container {
+  max-width: 800px;
+  margin: 40px auto;
+}
+.checkout-header {
+  margin-bottom: 30px;
+}
+.checkout-header h1 {
+  font-size: 2.5em;
+  margin: 0;
+}
+.checkout-header a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+.checkout-section {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+}
+.checkout-section h3 {
+  margin-top: 0;
+  font-size: 1.3em;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.cart-table thead {
+  border-bottom: 2px solid var(--text-color);
+}
+.cart-table th {
+  text-align: left;
+  padding: 10px 5px;
+  color: #888;
+  font-weight: normal;
+}
+.cart-table td {
+  padding: 20px 5px;
+  border-bottom: 1px solid var(--border-color);
+}
+.cart-item-title {
+  font-weight: bold;
+}
+.quantity-input {
+  display: flex;
+  align-items: center;
+}
+.quantity-input button {
+  background: #eee;
+  border: 1px solid #ccc;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+.quantity-input input {
+  width: 40px;
+  text-align: center;
+  border: 1px solid #ccc;
+  height: 30px;
+  margin: 0 5px;
+}
+.cart-item-remove {
+  background: none;
+  border: none;
+  color: var(--danger-color);
+  font-size: 1.5em;
+  cursor: pointer;
+}
+.cart-summary {
+  text-align: right;
+  padding-top: 20px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.payment-details p {
+  margin: 15px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#copy-btn {
+  background: #e9ecef;
+  border: 1px solid #dee2e6;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+}
+.final-confirmation {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  padding: 20px;
+}
+.final-confirmation label {
+  font-weight: bold;
+  color: #856404;
+}
+.btn-submit {
+  background-color: #343a40;
+  color: white;
+  width: 100%;
+  padding: 15px;
+  font-size: 1.2em;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+}
+.btn-submit.disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
 }
 
 /* --- 頁尾 --- */
@@ -169,11 +322,8 @@ h2 {
   text-align: center;
   padding: 30px;
   margin-top: 40px;
-  background-color: var(--footer-bg);
+  background-color: #e9ecef;
   color: #888;
-}
-.footer-links {
-  margin-top: 10px;
 }
 .admin-login-link {
   color: #999;
@@ -184,6 +334,3 @@ h2 {
   color: var(--primary-color);
   text-decoration: underline;
 }
-
-/* --- 其他頁面微調 (結帳、後台) --- */
-/* (以下省略，維持您原有的結帳與後台樣式即可，它們會繼承新的基礎樣式) */
