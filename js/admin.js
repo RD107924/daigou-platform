@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const editForm = document.getElementById("edit-product-form");
   const closeModalBtn = document.querySelector(".modal-close-btn");
   const editProductId = document.getElementById("edit-product-id");
-  const API_BASE_URL = "http://localhost:3000";
+  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
 
   async function fetchAndRenderProducts() {
     try {

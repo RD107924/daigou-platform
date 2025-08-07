@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const orderListBody = document.getElementById("order-list-body");
-  const API_BASE_URL = "http://localhost:3000";
+  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
   const statusOptions = [
     "待處理",
     "已通知廠商發貨",

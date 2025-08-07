@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const errorMessageDiv = document.getElementById("error-message");
-  const API_BASE_URL = "http://localhost:3000";
+  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
 
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
