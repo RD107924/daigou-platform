@@ -466,3 +466,34 @@ a:hover {
     margin-bottom: 10px;
   }
 }
+/* --- 分類篩選標籤樣式 --- */
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.filter-btn {
+  background-color: #e9ecef;
+  color: var(--text-color);
+  border: 1px solid #dee2e6;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  background-color: #ced4da;
+}
+
+.filter-btn.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
