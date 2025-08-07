@@ -21,10 +21,15 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       cart.forEach((item) => {
         const serviceFee = item.serviceFee || 0;
-        const itemTotal = item.price * item.quantity;
-        subtotal += itemTotal;
+
+        // --- 這裡是唯一的修改點 ---
+        // 為了顯示在「小計」欄位，我們計算單項商品含服務費的總價
+        const itemTotalForDisplay = (item.price + serviceFee) * item.quantity;
+
+        // 為了計算最下方的總金額，我們仍然分開計算商品總額和服務費總額
+        subtotal += item.price * item.quantity;
         totalServiceFee += serviceFee * item.quantity;
-        // --- 修改點：在表格中新增 serviceFee 這一欄 <td> ---
+
         const row = `
               <tr>
                   <td>
@@ -48,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
                           }" data-change="1">+</button>
                       </div>
                   </td>
-                  <td>$${itemTotal}</td>
+                  <td>$${itemTotalForDisplay}</td>
                   <td>
                       <button class="cart-item-remove" data-id="${
                         item.id
