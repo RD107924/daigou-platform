@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartItemsBody = document.getElementById("cart-items-body");
   const cartTotalEl = document.getElementById("cart-total");
 
-  const API_BASE_URL = "https://daigou-platform-api.onrender.com"; // 後端網址
+  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
 
   // --- 新功能：渲染購物車 ---
   function renderCart() {
