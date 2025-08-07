@@ -9,19 +9,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const products = await response.json();
       productGrid.innerHTML = "";
       products.forEach((product) => {
-        // 套用最新的卡片 HTML 結構
+        const serviceFee = product.serviceFee || 0;
+        // --- 修改點：在卡片 HTML 中新增 service-fee 這一行 ---
         const cardHTML = `
               <div class="product-card">
                   <img src="${product.imageUrl}" alt="${product.title}">
                   <div class="product-info">
                       <div>
-                          <span class="product-category">${
-                            product.category
-                          }</span>
+                          <span class="product-category">${product.category}</span>
                           <h3 class="product-title">${product.title}</h3>
                       </div>
                       <div>
                           <p class="product-price">$${product.price} TWD</p>
+                          <p class="service-fee">代購服務費: $${serviceFee}</p>
                       </div>
                   </div>
                   <div class="product-actions">
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
                           data-id="${product.id}" 
                           data-title="${product.title}" 
                           data-price="${product.price}"
-                          data-servicefee="${product.serviceFee || 0}">
+                          data-servicefee="${serviceFee}">
                           加入購物車
                       </button>
                   </div>
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 這段邏輯與您提供的一致，是正確的
+  // 這段邏輯是正確的，維持不變
   productGrid.addEventListener("click", (event) => {
     if (event.target.classList.contains("btn-add-to-cart")) {
       const button = event.target;
@@ -52,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const productPrice = parseInt(button.dataset.price, 10);
       const serviceFee = parseInt(button.dataset.servicefee, 10);
 
-      // 呼叫 cart.js 中的 addToCart 函式，並傳入 serviceFee
       addToCart(productId, productTitle, productPrice, serviceFee);
 
       alert(`「${productTitle}」已加入購物車！`);

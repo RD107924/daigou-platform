@@ -381,3 +381,16 @@ a:hover {
   color: var(--danger-color);
   font-weight: bold;
 }
+/* --- 商品卡片服務費樣式 --- */
+.service-fee {
+  font-size: 0.9em;
+  color: #6c757d; /* 灰色文字 */
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+/* --- 結帳頁面表格微調 --- */
+.cart-table th,
+.cart-table td {
+  padding: 15px 10px; /* 稍微調整間距 */
+}

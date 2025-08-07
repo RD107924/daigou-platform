@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const API_BASE_URL = "https://daigou-platform-api.onrender.com";
 
-  // --- 核心功能：渲染購物車 (已升級) ---
   function renderCart() {
     const cart = getCart();
     cartItemsBody.innerHTML = "";
@@ -18,12 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (cart.length === 0) {
       cartItemsBody.innerHTML =
-        '<tr><td colspan="5" style="text-align: center;">您的購物車是空的</td></tr>';
+        '<tr><td colspan="6" style="text-align: center;">您的購物車是空的</td></tr>';
     } else {
       cart.forEach((item) => {
+        const serviceFee = item.serviceFee || 0;
         const itemTotal = item.price * item.quantity;
         subtotal += itemTotal;
-        totalServiceFee += (item.serviceFee || 0) * item.quantity;
+        totalServiceFee += serviceFee * item.quantity;
+        // --- 修改點：在表格中新增 serviceFee 這一欄 <td> ---
         const row = `
               <tr>
                   <td>
@@ -35,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }">
                   </td>
                   <td>$${item.price}</td>
+                  <td>$${serviceFee}</td>
                   <td>
                       <div class="quantity-input">
                           <button class="quantity-btn" data-id="${
@@ -59,7 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const finalTotal = subtotal + totalServiceFee;
-    // 修改點：加入服務費，更新總計顯示
     cartSummaryEl.innerHTML = `
         <div style="font-size: 1em; color: #6c757d;">商品總額: $${subtotal} TWD</div>
         <div style="font-size: 1em; color: #6c757d;">服務費總額: $${totalServiceFee} TWD</div>
@@ -67,7 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
-  // --- 新增：購物車互動事件監聽 ---
   cartItemsBody.addEventListener("click", (event) => {
     const target = event.target;
     if (target.classList.contains("quantity-btn")) {
@@ -91,13 +91,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   cartItemsBody.addEventListener("change", (event) => {
     if (event.target.classList.contains("item-notes")) {
-      const productId = event.target.dataset.id;
+      const productId = target.dataset.id;
       const notes = event.target.value;
       updateCartNotes(productId, notes);
     }
   });
 
-  // --- 其他功能 (複製、啟用按鈕、提交訂單) ---
   copyBtn.addEventListener("click", () => {
     navigator.clipboard
       .writeText(document.getElementById("bank-account").innerText)
@@ -119,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 修改點：提交訂單時，使用最新的購物車資料和總額計算
   submitBtn.addEventListener("click", async (event) => {
     event.preventDefault();
     const paopaohuId = paopaohuIdInput.value.trim();
@@ -156,13 +154,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       alert(`訂單建立成功！\n您的訂單編號是: ${result.order.orderId}`);
       localStorage.removeItem("shoppingCart");
-      window.location.reload(); // 重新載入頁面以清空所有內容
+      window.location.reload();
     } catch (error) {
       console.error("訂單提交錯誤:", error);
       alert(`訂單提交時發生錯誤: ${error.message}`);
     }
   });
 
-  // --- 頁面載入時，立即渲染一次購物車 ---
   renderCart();
 });
