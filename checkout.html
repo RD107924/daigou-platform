@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>代採購大平台 - 結帳頁面</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>結帳</h1>
+
+      <section>
+        <h2>1. 購物車明細</h2>
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>商品名稱</th>
+              <th>單價</th>
+              <th>數量</th>
+              <th>備註</th>
+              <th>小計</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>華強北藍牙耳機 Pro 2</td>
+              <td>$900</td>
+              <td>1</td>
+              <td>無</td>
+              <td>$900</td>
+            </tr>
+            <tr>
+              <td>廣州訂製款潮T</td>
+              <td>$1,250</td>
+              <td>2</td>
+              <td>尺寸L, 黑色</td>
+              <td>$2,500</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="cart-total">訂單總額: $3,400 TWD</div>
+      </section>
+
+      <section>
+        <h2>2. 付款與出貨資料</h2>
+        <div class="payment-info">
+          <p><strong>請匯款至以下帳號:</strong></p>
+          <p>富邦銀行 (012)</p>
+          <p>
+            帳號: <span id="bank-account">81680013793778</span>
+            <button id="copy-btn">一鍵複製</button>
+          </p>
+        </div>
+        <div class="form-group" style="margin-top: 20px">
+          <label for="paopaohu-id">跑跑虎集運會員編號 (必填)</label>
+          <input type="text" id="paopaohu-id" name="paopaohu-id" required />
+        </div>
+        <div class="form-group">
+          <label for="last-five">匯款帳號末五碼 (必填)</label>
+          <input type="text" id="last-five" name="last-five" required />
+        </div>
+      </section>
+
+      <section class="final-confirmation">
+        <h2>3. ⚠️ 最終確認</h2>
+        <p>
+          我確認本服務僅負責代為採購商品並寄送至指定之跑跑虎集運(深圳)倉，後續大陸到台灣的運費將由我自行在跑跑虎APP操作並支付。
+        </p>
+        <div class="form-group">
+          <label for="confirmation-input"
+            >為確保您已了解，請在此處輸入「我了解」以啟用下單按鈕：</label
+          >
+          <input
+            type="text"
+            id="confirmation-input"
+            placeholder="請輸入『我了解』"
+          />
+        </div>
+      </section>
+
+      <button id="submit-btn" class="disabled" disabled>確認下單</button>
+    </div>
+
+    <script src="js/script.js" defer></script>
+  </body>
+</html>
