@@ -341,3 +341,43 @@ a:hover {
   text-decoration: none;
   font-size: 0.9em;
 }
+/* --- 訂單查詢結果樣式 --- */
+.lookup-results-container {
+  margin-top: 30px;
+}
+.order-card {
+  margin-bottom: 20px;
+}
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+.order-card-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+  border: none;
+  padding: 0;
+}
+.order-status {
+  background-color: var(--secondary-color);
+  color: var(--header-text-color);
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+.order-card-body p {
+  margin: 8px 0;
+}
+.order-card-body ul {
+  padding-left: 20px;
+  margin: 10px 0 0 0;
+}
+.error-message {
+  color: var(--danger-color);
+  font-weight: bold;
+}
