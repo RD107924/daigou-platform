@@ -1,55 +1,136 @@
-// 取得頁面上的元素
-const bankAccountEl = document.getElementById("bank-account");
-const copyBtn = document.getElementById("copy-btn");
-const confirmationInput = document.getElementById("confirmation-input");
-const submitBtn = document.getElementById("submit-btn");
+document.addEventListener("DOMContentLoaded", () => {
+  // --- 獲取所有需要的 DOM 元素 ---
+  const bankAccountEl = document.getElementById("bank-account");
+  const copyBtn = document.getElementById("copy-btn");
+  const confirmationInput = document.getElementById("confirmation-input");
+  const submitBtn = document.getElementById("submit-btn");
+  const paopaohuIdInput = document.getElementById("paopaohu-id");
+  const lastFiveInput = document.getElementById("last-five");
+  const cartItemsBody = document.getElementById("cart-items-body");
+  const cartTotalEl = document.getElementById("cart-total");
 
-// --- 功能1: 一鍵複製銀行帳號 ---
-copyBtn.addEventListener("click", function () {
-  // 使用瀏覽器的 Clipboard API
-  navigator.clipboard.writeText(bankAccountEl.innerText).then(
-    function () {
-      // 複製成功後的回饋
-      copyBtn.innerText = "已複製!";
-      setTimeout(function () {
-        copyBtn.innerText = "一鍵複製";
-      }, 2000); // 2秒後恢復原狀
-    },
-    function (err) {
-      // 複製失敗時的處理 (較少見)
-      alert("複製失敗: " + err);
+  const API_BASE_URL = "http://localhost:3000"; // 後端網址
+
+  // --- 新功能：渲染購物車 ---
+  function renderCart() {
+    const cart = getCart(); // 從 cart.js 獲取購物車資料
+    cartItemsBody.innerHTML = ""; // 清空現有列表
+    let totalAmount = 0;
+
+    if (cart.length === 0) {
+      cartItemsBody.innerHTML =
+        '<tr><td colspan="4" style="text-align: center;">您的購物車是空的</td></tr>';
+      cartTotalEl.innerText = "訂單總額: $0 TWD";
+      return;
     }
-  );
-});
 
-// --- 功能2: 驗證「我了解」以啟用按鈕 ---
-confirmationInput.addEventListener("input", function () {
-  // 檢查輸入框的值是否完全等於 "我了解"
-  if (confirmationInput.value.trim() === "我了解") {
-    submitBtn.disabled = false; // 啟用按鈕
-    submitBtn.classList.remove("disabled");
-    submitBtn.classList.add("enabled");
-  } else {
-    submitBtn.disabled = true; // 禁用按鈕
-    submitBtn.classList.remove("enabled");
-    submitBtn.classList.add("disabled");
-  }
-});
+    cart.forEach((item) => {
+      const row = `
+                <tr>
+                    <td>${item.title}</td>
+                    <td>$${item.price}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${item.price * item.quantity}</td>
+                </tr>
+            `;
+      cartItemsBody.insertAdjacentHTML("beforeend", row);
+      totalAmount += item.price * item.quantity;
+    });
 
-// --- 功能3: 模擬點擊下單按鈕 ---
-submitBtn.addEventListener("click", function (event) {
-  // 由於我們還沒有後端，這裡先用 alert 模擬提交
-  // event.preventDefault() 可以防止表單真的被送出 (如果它在 <form> 標籤裡)
-
-  const paopaohuId = document.getElementById("paopaohu-id").value;
-  const lastFive = document.getElementById("last-five").value;
-
-  if (!paopaohuId || !lastFive) {
-    alert("請務必填寫跑跑虎會員編號與匯款末五碼！");
-    return; // 停止執行
+    cartTotalEl.innerText = `訂單總額: $${totalAmount} TWD`;
   }
 
-  alert("訂單已送出！\n(此為前端範例，尚未連接後端資料庫)");
+  // --- 功能1: 一鍵複製銀行帳號 ---
+  copyBtn.addEventListener("click", () => {
+    navigator.clipboard.writeText(bankAccountEl.innerText).then(
+      () => {
+        copyBtn.innerText = "已複製!";
+        setTimeout(() => {
+          copyBtn.innerText = "一鍵複製";
+        }, 2000);
+      },
+      (err) => {
+        alert("複製失敗: " + err);
+      }
+    );
+  });
 
-  // 在真實情境中，這裡會是呼叫後端 API 的程式碼
+  // --- 功能2: 驗證「我了解」以啟用按鈕 ---
+  confirmationInput.addEventListener("input", () => {
+    if (confirmationInput.value.trim() === "我了解") {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove("disabled");
+      submitBtn.classList.add("enabled");
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.classList.remove("enabled");
+      submitBtn.classList.add("disabled");
+    }
+  });
+
+  // --- 功能3: 真正的下單按鈕點擊事件 ---
+  submitBtn.addEventListener("click", async (event) => {
+    event.preventDefault(); // 防止表單預設提交行為
+
+    // 1. 驗證必填欄位
+    const paopaohuId = paopaohuIdInput.value.trim();
+    const lastFiveDigits = lastFiveInput.value.trim();
+    const cart = getCart();
+
+    if (!paopaohuId || !lastFiveDigits) {
+      alert("請務必填寫跑跑虎會員編號與匯款末五碼！");
+      return;
+    }
+
+    if (cart.length === 0) {
+      alert("您的購物車是空的，無法建立訂單！");
+      return;
+    }
+
+    // 2. 從購物車資料計算總金額
+    const totalAmount = cart.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    // 3. 組合要發送到後端的訂單資料
+    const orderData = {
+      paopaohuId: paopaohuId,
+      lastFiveDigits: lastFiveDigits,
+      totalAmount: totalAmount,
+      items: cart, // 使用從 localStorage 來的真實購物車商品
+    };
+
+    // 4. 使用 fetch 發送 POST 請求到後端
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // 如果後端回傳錯誤 (例如 400, 500)
+        throw new Error(result.message || "建立訂單失敗");
+      }
+
+      // 訂單建立成功！
+      alert(`訂單建立成功！\n您的訂單編號是: ${result.order.orderId}`);
+
+      localStorage.removeItem("shoppingCart"); // 清空 localStorage 的購物車
+      renderCart(); // 重新渲染空的購物車畫面
+      paopaohuIdInput.value = ""; // 清空表單欄位
+      lastFiveInput.value = "";
+    } catch (error) {
+      console.error("訂單提交錯誤:", error);
+      alert(`訂單提交時發生錯誤: ${error.message}`);
+    }
+  });
+
+  // --- 頁面載入時，立即渲染一次購物車 ---
+  renderCart();
 });

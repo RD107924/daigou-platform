@@ -1,0 +1,10 @@
+{
+  "products": [],
+  "orders": [],
+  "users": [
+    {
+      "username": "randy",
+      "passwordHash": "$2b$10$VEbET.eFrrkNSuwfPFV.J.FVOvM3RplQtE0/60PQe.3Tr8y1qbHd2"
+    }
+  ]
+}

@@ -4,12 +4,11 @@ body {
   background-color: #f4f4f4;
   margin: 0;
   padding: 20px;
-  display: flex;
-  justify-content: center;
 }
 .container {
   width: 100%;
   max-width: 800px;
+  margin: 0 auto;
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -124,4 +123,211 @@ input[type="text"] {
 #submit-btn.disabled {
   background-color: #a9a9a9; /* 灰色 */
   cursor: not-allowed;
+}
+
+/* --- 追加的商品頁樣式 --- */
+
+/* 頁首樣式 (簡單版) */
+.site-header {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.site-header nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 15px;
+}
+.site-header nav a:hover {
+  text-decoration: underline;
+}
+
+/* 商品網格容器 (使用 CSS Grid 實現響應式佈局) */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px; /* 卡片之間的間距 */
+}
+
+/* 商品卡片本體 */
+.product-card {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 商品圖片 */
+.product-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+/* 商品資訊區 (標題、價格等) */
+.product-info {
+  padding: 15px;
+  flex-grow: 1;
+}
+
+/* 商品分類標籤 */
+.product-category {
+  font-size: 12px;
+  color: #fff;
+  background-color: #007bff;
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* 商品標題 */
+.product-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+/* 商品價格 */
+.product-price {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #28a745;
+  margin: 0;
+}
+
+/* 商品按鈕區 */
+.product-actions {
+  padding: 0 15px 15px 15px;
+  display: flex;
+  gap: 10px;
+}
+
+/* 通用按鈕樣式 */
+.btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+.btn-secondary {
+  background-color: #e9ecef;
+  color: #333;
+  border: 1px solid #ccc;
+}
+.btn-secondary:hover {
+  background-color: #d3d9df;
+}
+/* --- 追加的後台管理樣式 --- */
+
+.admin-section {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.admin-form .form-group {
+  margin-bottom: 15px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.admin-table th,
+.admin-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  background-color: #f8f8f8;
+  font-weight: 600;
+}
+
+.admin-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.btn-small {
+  padding: 5px 10px;
+  font-size: 14px;
+  margin-right: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+.btn-danger:hover {
+  background-color: #c82333;
+}
+/* --- 追加的 Modal 樣式 --- */
+
+.modal {
+  display: none; /* 預設隱藏 */
+  position: fixed; /* 固定在畫面上 */
+  z-index: 1000; /* 顯示在最上層 */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* 如果內容太長，允許滾動 */
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto; /* 上下 10% 邊距，水平置中 */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.modal-close-btn {
+  color: #aaa;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal-close-btn:hover,
+.modal-close-btn:focus {
+  color: black;
+  text-decoration: none;
 }

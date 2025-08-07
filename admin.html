@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>後台商品管理</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>後台商品管理</h1>
+      <nav>
+        <a href="admin.html"><strong>商品管理</strong></a>
+        <a href="orders-admin.html">訂單管理</a>
+      </nav>
+
+      <section class="admin-section">
+        <h2>新增商品</h2>
+        <form id="add-product-form" class="admin-form">
+          <div class="form-group">
+            <label for="category">商品分類</label>
+            <input type="text" id="category" name="category" required />
+          </div>
+          <div class="form-group">
+            <label for="title">商品名稱</label>
+            <input type="text" id="title" name="title" required />
+          </div>
+          <div class="form-group">
+            <label for="price">台幣價格</label>
+            <input type="number" id="price" name="price" required />
+          </div>
+          <div class="form-group">
+            <label for="imageUrl">圖片網址</label>
+            <input type="text" id="imageUrl" name="imageUrl" required />
+          </div>
+          <button type="submit" class="btn btn-primary">確認新增</button>
+        </form>
+      </section>
+
+      <section class="admin-section">
+        <h2>現有商品列表</h2>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>分類</th>
+              <th>名稱</th>
+              <th>價格</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="product-list-body"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <div id="edit-modal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close-btn">&times;</span>
+        <h2>編輯商品</h2>
+        <form id="edit-product-form" class="admin-form">
+          <input type="hidden" id="edit-product-id" />
+
+          <div class="form-group">
+            <label for="edit-category">商品分類</label>
+            <input type="text" id="edit-category" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-title">商品名稱</label>
+            <input type="text" id="edit-title" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-price">台幣價格</label>
+            <input type="number" id="edit-price" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-imageUrl">圖片網址</label>
+            <input type="text" id="edit-imageUrl" required />
+          </div>
+          <button type="submit" class="btn btn-primary">儲存變更</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="js/admin.js" defer></script>
+  </body>
+</html>

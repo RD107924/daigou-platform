@@ -18,28 +18,12 @@
               <th>商品名稱</th>
               <th>單價</th>
               <th>數量</th>
-              <th>備註</th>
               <th>小計</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>華強北藍牙耳機 Pro 2</td>
-              <td>$900</td>
-              <td>1</td>
-              <td>無</td>
-              <td>$900</td>
-            </tr>
-            <tr>
-              <td>廣州訂製款潮T</td>
-              <td>$1,250</td>
-              <td>2</td>
-              <td>尺寸L, 黑色</td>
-              <td>$2,500</td>
-            </tr>
-          </tbody>
+          <tbody id="cart-items-body"></tbody>
         </table>
-        <div class="cart-total">訂單總額: $3,400 TWD</div>
+        <div class="cart-total" id="cart-total"></div>
       </section>
 
       <section>
@@ -82,6 +66,7 @@
       <button id="submit-btn" class="disabled" disabled>確認下單</button>
     </div>
 
+    <script src="js/cart.js" defer></script>
     <script src="js/script.js" defer></script>
   </body>
 </html>

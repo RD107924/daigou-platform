@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>後台訂單管理</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container" style="max-width: 1200px">
+      <h1>後台訂單管理</h1>
+      <nav>
+        <a href="admin.html">商品管理</a>
+        <a href="orders-admin.html"><strong>訂單管理</strong></a>
+      </nav>
+
+      <section class="admin-section">
+        <h2>所有訂單列表</h2>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>訂單編號</th>
+              <th>下單時間</th>
+              <th>跑跑虎編號</th>
+              <th>總金額</th>
+              <th>商品詳情</th>
+              <th>狀態</th>
+            </tr>
+          </thead>
+          <tbody id="order-list-body"></tbody>
+        </table>
+      </section>
+    </div>
+    <script src="js/orders-admin.js" defer></script>
+  </body>
+</html>
