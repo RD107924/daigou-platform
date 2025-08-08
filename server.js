@@ -4,11 +4,18 @@ import { JSONFile } from "lowdb/node";
 import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import sgMail from "@sendgrid/mail";
 
 const adapter = new JSONFile(
   process.env.NODE_ENV === "production" ? "/data/db.json" : "db.json"
 );
-const defaultData = { products: [], orders: [], users: [], requests: [] };
+const defaultData = {
+  products: [],
+  orders: [],
+  users: [],
+  requests: [],
+  categories: [],
+};
 const db = new Low(adapter, defaultData);
 await db.read();
 
@@ -17,6 +24,7 @@ db.data.products = db.data.products || [];
 db.data.orders = db.data.orders || [];
 db.data.users = db.data.users || [];
 db.data.requests = db.data.requests || [];
+db.data.categories = db.data.categories || [];
 
 async function initializeAdminUser() {
   let adminUser = db.data.users.find((u) => u.username === "randy");
@@ -37,6 +45,34 @@ async function initializeAdminUser() {
   }
 }
 await initializeAdminUser();
+
+// --- SendGrid 設定 ---
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const NOTIFICATION_EMAIL = "rruntiger@gmail.com";
+const FROM_EMAIL = "rruntiger@gmail.com"; // 請確保這個寄件人已經在 SendGrid 完成驗證
+
+async function sendEmailNotification({ subject, text, html }) {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log("SENDGRID_API_KEY 未設定，跳過寄送郵件。");
+    return;
+  }
+  const msg = {
+    to: NOTIFICATION_EMAIL,
+    from: { email: FROM_EMAIL, name: "代採購大平台通知" },
+    subject,
+    text,
+    html,
+  };
+  try {
+    await sgMail.send(msg);
+    console.log("郵件通知已成功寄出至:", NOTIFICATION_EMAIL);
+  } catch (error) {
+    console.error(
+      "寄送郵件時發生錯誤:",
+      error.response ? error.response.body : error
+    );
+  }
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -97,6 +133,7 @@ app.post("/api/orders", async (req, res) => {
     if (
       !orderData.paopaohuId ||
       !orderData.lastFiveDigits ||
+      !orderData.email ||
       !orderData.items ||
       orderData.items.length === 0
     )
@@ -111,6 +148,23 @@ app.post("/api/orders", async (req, res) => {
     };
     db.data.orders.push(newOrder);
     await db.write();
+    sendEmailNotification({
+      subject: `[新訂單通知] 訂單編號: ${newOrder.orderId}`,
+      text: `您有一筆新的訂單！跑跑虎ID: ${orderData.paopaohuId}，總金額: ${orderData.totalAmount}`,
+      html: `<h2>新訂單通知</h2><p><strong>訂單編號:</strong> ${
+        newOrder.orderId
+      }</p><p><strong>跑跑虎ID:</strong> ${
+        orderData.paopaohuId
+      }</p><p><strong>E-mail:</strong> ${
+        orderData.email
+      }</p><p><strong>統一編號:</strong> ${
+        orderData.taxId || "未提供"
+      }</p><p><strong>末五碼:</strong> ${
+        orderData.lastFiveDigits
+      }</p><p><strong>總金額:</strong> ${
+        orderData.totalAmount
+      } TWD</p><p>請盡快登入後台處理。</p>`,
+    });
     res.status(201).json({ message: "訂單建立成功", order: newOrder });
   } catch (error) {
     res.status(500).json({ message: "伺服器內部錯誤" });
@@ -134,6 +188,11 @@ app.post("/api/requests", async (req, res) => {
     };
     db.data.requests.push(newRequest);
     await db.write();
+    sendEmailNotification({
+      subject: `[新代採購請求] 來自: ${requestData.contactInfo}`,
+      text: `您有一筆新的代採購請求！商品: ${requestData.productName}`,
+      html: `<h2>新代採購請求</h2><p><strong>聯絡方式:</strong> ${requestData.contactInfo}</p><p><strong>商品名稱:</strong> ${requestData.productName}</p><p><strong>商品連結:</strong> <a href="${requestData.productUrl}">點此查看</a></p><p>請盡快登入後台處理。</p>`,
+    });
     res.status(201).json({ message: "代採購請求已收到", request: newRequest });
   } catch (error) {
     console.error("建立請求時發生錯誤:", error);
@@ -152,6 +211,13 @@ app.get("/api/orders/lookup", async (req, res) => {
     res.json(foundOrders.reverse());
   } catch (error) {
     console.error("查詢訂單時發生錯誤:", error);
+    res.status(500).json({ message: "伺服器內部錯誤" });
+  }
+});
+app.get("/api/categories", async (req, res) => {
+  try {
+    res.json(db.data.categories);
+  } catch (error) {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
@@ -235,8 +301,6 @@ app.delete("/api/products/:id", authenticateToken, async (req, res) => {
   await db.write();
   res.status(200).json({ message: "商品刪除成功" });
 });
-
-// **--- 唯一的修改點在這裡 ---**
 app.patch(
   "/api/orders/:orderId/status",
   authenticateToken,
@@ -244,7 +308,7 @@ app.patch(
     try {
       const { orderId } = req.params;
       const { status: newStatus } = req.body;
-      const operatorUsername = req.user.username; // 從 token 取得當前操作者的 username
+      const operatorUsername = req.user.username;
       const allowedStatus = [
         "待處理",
         "已通知廠商發貨",
@@ -280,7 +344,6 @@ app.patch(
     }
   }
 );
-
 app.patch(
   "/api/requests/:requestId/status",
   authenticateToken,
@@ -298,7 +361,7 @@ app.patch(
       await db.write();
       res.json({ message: "請求狀態更新成功", request: requestToUpdate });
     } catch (error) {
-      console.error("更新請求狀態時發生錯誤:", error);
+      console.error("更新請求時發生錯誤:", error);
       res.status(500).json({ message: "伺服器內部錯誤" });
     }
   }
@@ -361,46 +424,6 @@ app.patch(
       });
       await db.write();
       res.json({ message: "商品順序已更新" });
-    } catch (error) {
-      res.status(500).json({ message: "伺服器內部錯誤" });
-    }
-  }
-);
-app.patch(
-  "/api/orders/:orderId/assign",
-  authenticateToken,
-  authorizeAdmin,
-  async (req, res) => {
-    try {
-      const { orderId } = req.params;
-      const { username } = req.body;
-      const orderToUpdate = db.data.orders.find((o) => o.orderId === orderId);
-      if (!orderToUpdate)
-        return res.status(404).json({ message: "找不到該訂單" });
-      orderToUpdate.assignedTo = username || null;
-      await db.write();
-      res.json({ message: "訂單指派成功", order: orderToUpdate });
-    } catch (error) {
-      res.status(500).json({ message: "伺服器內部錯誤" });
-    }
-  }
-);
-app.patch(
-  "/api/requests/:requestId/assign",
-  authenticateToken,
-  authorizeAdmin,
-  async (req, res) => {
-    try {
-      const { requestId } = req.params;
-      const { username } = req.body;
-      const requestToUpdate = db.data.requests.find(
-        (r) => r.requestId === requestId
-      );
-      if (!requestToUpdate)
-        return res.status(404).json({ message: "找不到該請求" });
-      requestToUpdate.assignedTo = username || null;
-      await db.write();
-      res.json({ message: "請求指派成功", request: requestToUpdate });
     } catch (error) {
       res.status(500).json({ message: "伺服器內部錯誤" });
     }

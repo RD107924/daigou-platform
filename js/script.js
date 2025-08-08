@@ -133,15 +133,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const lastFiveDigits = lastFiveInput.value.trim();
     const cart = getCart();
 
+    // 驗證必填欄位
     if (!paopaohuId || !lastFiveDigits || !email) {
       alert("請務必填寫所有必填欄位 (跑跑虎編號、E-mail、匯款末五碼)！");
       return;
     }
+
+    // 簡單的 Email 格式驗證
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("請輸入有效的 E-mail 格式！");
+      return;
+    }
+
+    // 統一編號驗證 (如果填寫了，必須是 8 位數字)
+    if (taxId && !/^\d{8}$/.test(taxId)) {
+      alert("統一編號格式不正確，必須是 8 位數字。");
+      return;
+    }
+
     if (cart.length === 0) {
       alert("您的購物車是空的，無法建立訂單！");
       return;
     }
-    // --- 修改結束 ---
+    // --- 驗證結束 ---
 
     const totalAmount = cart.reduce(
       (sum, item) =>
