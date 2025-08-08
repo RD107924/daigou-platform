@@ -1,9 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // --- 獲取所有需要的 DOM 元素 ---
   const copyBtn = document.getElementById("copy-btn");
   const confirmationInput = document.getElementById("confirmation-input");
   const submitBtn = document.getElementById("submit-btn");
   const paopaohuIdInput = document.getElementById("paopaohu-id");
   const lastFiveInput = document.getElementById("last-five");
+  // --- 新增獲取新欄位的元素 ---
+  const emailInput = document.getElementById("customer-email");
+  const taxIdInput = document.getElementById("tax-id");
+  // --- 新增結束 ---
   const cartItemsBody = document.getElementById("cart-items-body");
   const cartSummaryEl = document.getElementById("cart-summary");
 
@@ -120,18 +125,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   submitBtn.addEventListener("click", async (event) => {
     event.preventDefault();
+
+    // --- 修改點：收集並驗證新欄位 ---
     const paopaohuId = paopaohuIdInput.value.trim();
+    const email = emailInput.value.trim();
+    const taxId = taxIdInput.value.trim();
     const lastFiveDigits = lastFiveInput.value.trim();
     const cart = getCart();
 
-    if (!paopaohuId || !lastFiveDigits) {
-      alert("請務必填寫跑跑虎會員編號與匯款末五碼！");
+    if (!paopaohuId || !lastFiveDigits || !email) {
+      alert("請務必填寫所有必填欄位 (跑跑虎編號、E-mail、匯款末五碼)！");
       return;
     }
     if (cart.length === 0) {
       alert("您的購物車是空的，無法建立訂單！");
       return;
     }
+    // --- 修改結束 ---
 
     const totalAmount = cart.reduce(
       (sum, item) =>
@@ -141,7 +151,16 @@ document.addEventListener("DOMContentLoaded", () => {
       0
     );
 
-    const orderData = { paopaohuId, lastFiveDigits, totalAmount, items: cart };
+    // --- 修改點：將新欄位加入要送到後端的資料中 ---
+    const orderData = {
+      paopaohuId,
+      email,
+      taxId,
+      lastFiveDigits,
+      totalAmount,
+      items: cart,
+    };
+    // --- 修改結束 ---
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
