@@ -4,12 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>代採購大平台</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <header class="site-header">
       <div class="header-content">
-        <h1 class="site-title">代採購大平台</h1>
+        <a href="index.html" class="site-logo-link">
+          <img
+            src="images/logo.png"
+            alt="代採購大平台 LOGO"
+            class="site-logo"
+          />
+        </a>
         <nav class="main-nav">
           <a href="index.html">批發貨源</a>
           <a href="request.html">代採購</a>
@@ -23,12 +30,12 @@
       <div class="important-reminder">
         <h3>⚠️ 重要提醒，請務必詳讀 ⚠️</h3>
         <p>
-          <strong>1. 關於價格：</strong
-          >頁面顯示的【台幣價格】即為您需要支付的全部費用，已包含代購服務費。
+          <strong>1. 關於價格：</strong>
+          頁面顯示的【台幣價格】即為您需要支付的全部費用，已包含代購服務費。
         </p>
         <p>
-          <strong>2. 關於運費：</strong
-          ><span class="text-danger"
+          <strong>2. 關於運費：</strong>
+          <span class="text-danger"
             >本站不經手任何運費。貨物送達後，您需自行登入「跑跑虎集運APP」支付國際運費。</span
           >
         </p>
@@ -55,7 +62,6 @@
 
       <div class="page-section">
         <h2>批發貨源列表</h2>
-
         <div id="category-filters" class="category-filters"></div>
         <div class="product-grid"></div>
       </div>
@@ -74,13 +80,11 @@
     </a>
 
     <footer class="site-footer">
-      <p>&copy; 2025 代採購大平台. All Rights Reserved.</p>
-      <div class="footer-links">
-        <a href="login.html" class="admin-login-link">管理者登入</a>
-      </div>
+      <p>&copy; 2024 代採購大平台. All Rights Reserved.</p>
+      <a href="login.html" class="admin-login-link">管理員登入</a>
     </footer>
 
-    <script src="js/cart.js" defer></script>
-    <script src="js/products.js" defer></script>
+    <script src="js/cart.js"></script>
+    <script src="js/products.js"></script>
   </body>
 </html>
