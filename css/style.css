@@ -1,16 +1,17 @@
-/* --- 愛馬仕風格 沉穩版 --- */
+/* --- 愛馬仕橘主題 V3 --- */
 :root {
-  --primary-color: #d75f28;
-  --primary-hover-color: #c1511f;
-  --bg-color: #f5f5f5; /* 柔和的淺灰背景 */
+  --bg-color: #fff8f0; /* 更柔和的米色背景 */
+  --primary-color: #f57c00; /* 主題橘色 (更溫暖) */
+  --primary-hover-color: #e65100; /* 滑鼠懸停時的深橘色 */
+  --header-bg: #ffffff;
+  --header-text-color: #4e342e; /* 深棕色文字 */
+  --text-color: #424242;
+  --text-light: #616161; /* 較淺的文字顏色 */
+  --border-color: #ffe0b2;
   --card-bg: #ffffff;
-  --text-color: #333333; /* 主要文字顏色 */
-  --text-light: #757575; /* 輔助文字 */
-  --heading-color: #212121; /* 標題使用更深的顏色 */
-  --border-color: #e0e0e0; /* 更細緻的邊框顏色 */
-  --danger-color: #d32f2f;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  --success-color: #4caf50;
+  --danger-color: #d9534f;
+  --link-color: #0275d8;
 }
 
 /* --- 全域與基本設定 --- */
@@ -19,51 +20,49 @@
 *::after {
   box-sizing: border-box;
 }
-
 body {
-  font-family: var(--font-sans);
+  font-family: "Helvetica Neue", "微軟正黑體", "Microsoft JhengHei", sans-serif;
   background-color: var(--bg-color);
   margin: 0;
   padding: 0;
   color: var(--text-color);
   line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
 }
 .container {
   width: 90%;
-  max-width: 1140px;
+  max-width: 1200px;
   margin: 40px auto;
   padding: 0;
 }
 h1,
 h2,
 h3 {
-  color: var(--heading-color);
+  color: var(--header-text-color);
   margin-top: 0;
-  font-weight: 700;
 }
 a {
-  color: var(--primary-color);
+  color: var(--link-color);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 a:hover {
   color: var(--primary-hover-color);
+  text-decoration: none;
 }
 
 /* --- 頁首/導覽列 --- */
 .site-header {
-  background-color: var(--card-bg);
-  padding: 20px 0;
+  background-color: var(--header-bg);
+  padding: 15px 0;
   width: 100%;
-  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: sticky;
   top: 0;
   z-index: 1020;
 }
 .header-content {
   width: 90%;
-  max-width: 1140px;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -73,74 +72,64 @@ a:hover {
   margin: 0;
   font-size: 1.8em;
   color: var(--primary-color);
-  font-weight: 700;
+  font-weight: bold;
 }
 .main-nav a {
-  color: var(--text-color);
+  color: var(--header-text-color);
   text-decoration: none;
-  margin: 0 0 0 40px;
+  margin: 0 15px;
   font-size: 1em;
-  font-weight: 500;
-  padding-bottom: 8px;
-  position: relative;
+  padding-bottom: 5px;
+  transition: all 0.3s ease;
 }
-.main-nav a::after {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: var(--primary-color);
-  transition: width 0.3s ease;
-}
-.main-nav a:hover::after {
-  width: 100%;
-}
-
-/* --- 內容區塊卡片化 --- */
-.page-section,
-.important-reminder,
-.checkout-section,
-.order-card,
-.form-container {
-  background-color: var(--card-bg);
-  padding: 30px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-  margin-bottom: 30px;
+.main-nav a:hover {
+  color: var(--primary-color);
 }
 
 /* --- 主頁提醒區塊 --- */
+.important-reminder {
+  background-color: #fff3cd;
+  color: #856404;
+  border-left: 5px solid #ffeeba;
+  border-radius: 8px;
+  padding: 25px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 15px rgba(255, 224, 178, 0.5);
+}
 .important-reminder h3 {
+  margin-top: 0;
+  color: #856404;
   font-size: 1.2em;
-  color: var(--heading-color);
 }
 .important-reminder p {
   margin: 12px 0 0 0;
+  line-height: 1.8;
 }
-.text-danger {
-  color: var(--danger-color);
-  font-weight: 600;
+.important-reminder a {
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: bold;
 }
 
 /* --- 頁面區塊 --- */
-.page-section h2 {
-  text-align: center;
-  font-size: 2em;
-  margin-bottom: 40px;
+.page-section {
+  background-color: var(--card-bg);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 /* --- 商品卡片 --- */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 25px;
+  gap: 30px;
 }
 .product-card {
+  background-color: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -148,11 +137,11 @@ a:hover {
 }
 .product-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 .product-card img {
   width: 100%;
-  height: 250px;
+  height: 220px;
   object-fit: cover;
 }
 .product-info {
@@ -163,7 +152,7 @@ a:hover {
   flex-direction: column;
 }
 .product-category {
-  font-size: 0.85em;
+  font-size: 0.8em;
   color: var(--text-light);
   margin-bottom: 8px;
 }
@@ -174,23 +163,23 @@ a:hover {
   flex-grow: 1;
 }
 .product-price {
-  font-size: 1.5em;
-  font-weight: 500;
+  font-size: 1.4em;
+  font-weight: bold;
   color: var(--text-color);
-  margin-top: 15px;
+  margin-top: 10px;
 }
 .service-fee {
   font-size: 0.9em;
   color: var(--text-light);
   margin-top: -5px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 .btn-primary {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  padding: 14px;
-  border-radius: 5px;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 1em;
   font-weight: bold;
@@ -221,79 +210,59 @@ a:hover {
 .line-fab img {
   width: 130px;
   height: auto;
+}
+
+/* --- 結帳頁面 --- */
+.checkout-container {
+  max-width: 800px;
+  margin: 40px auto;
+}
+.checkout-header {
+  margin-bottom: 30px;
+}
+.checkout-header h1 {
+  font-size: 2.5em;
+  margin: 0;
+  color: #343a40;
+}
+.checkout-section {
+  background-color: #fff;
+  padding: 30px;
   border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
 }
-
-/* --- 頁尾 --- */
-.site-footer {
-  text-align: center;
-  padding: 40px;
-  margin-top: 40px;
-  background-color: #f1f1f1;
-  border-top: 1px solid var(--border-color);
-  color: #888;
-}
-.admin-login-link {
-  color: #999;
-  text-decoration: none;
-  font-size: 0.9em;
-}
-
-/* --- 分類篩選標籤樣式 --- */
-.category-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 40px;
-  justify-content: center;
-}
-.filter-btn {
-  background-color: #f1f1f1;
-  color: var(--text-color);
-  border: 1px solid transparent;
-  padding: 8px 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-.filter-btn:hover {
-  background-color: #e0e0e0;
-}
-.filter-btn.active {
-  background-color: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
-
-/* --- 結帳、請求、查詢等頁面通用樣式 --- */
-.form-header h1 {
-  font-size: 2.2em;
-}
-.checkout-section h3,
-.form-section h3 {
+.checkout-section h3 {
+  margin-top: 0;
   font-size: 1.3em;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 15px;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
+  color: #343a40;
 }
 .cart-table {
   width: 100%;
   border-collapse: collapse;
 }
+.cart-table thead {
+  border-bottom: 2px solid #6c757d;
+}
 .cart-table th {
   text-align: left;
-  padding: 12px 5px;
-  color: var(--text-light);
-  font-weight: 500;
+  padding: 10px 5px;
+  color: #6c757d;
+  font-weight: normal;
+  text-transform: uppercase;
   font-size: 0.9em;
-  border-bottom: 2px solid var(--border-color);
 }
 .cart-table td {
   padding: 20px 5px;
   border-bottom: 1px solid var(--border-color);
   vertical-align: middle;
+}
+.cart-item-title {
+  font-weight: bold;
+  font-size: 1.1em;
 }
 .quantity-input {
   display: flex;
@@ -327,10 +296,18 @@ a:hover {
   text-align: right;
   padding-top: 20px;
   font-size: 1.1em;
+  color: var(--text-color);
   line-height: 2;
 }
 .cart-summary strong {
   font-size: 1.2em;
+}
+.payment-details p {
+  margin: 20px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1em;
 }
 #copy-btn {
   background: #e9ecef;
@@ -344,18 +321,27 @@ a:hover {
 }
 .form-group label {
   display: block;
-  margin-bottom: 10px;
-  font-weight: 600;
-  font-size: 0.9em;
+  margin-bottom: 8px;
+  font-weight: bold;
 }
 .form-group input,
 .form-group textarea,
 .form-group select {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
   font-size: 1em;
+  font-family: inherit;
+}
+.final-confirmation {
+  background-color: #fff3cd;
+  border-left: 5px solid #ffeeba;
+  padding: 20px;
+}
+.final-confirmation label {
+  font-weight: bold;
+  color: #856404;
 }
 .btn-submit {
   background-color: var(--text-color);
@@ -363,13 +349,71 @@ a:hover {
   width: 100%;
   padding: 15px;
   font-size: 1.2em;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   border: none;
+  transition: background-color 0.3s ease;
+}
+.btn-submit:hover {
+  background-color: #000;
 }
 .btn-submit.disabled {
   background-color: #adb5bd;
   cursor: not-allowed;
+}
+
+/* --- 頁尾 --- */
+.site-footer {
+  text-align: center;
+  padding: 30px;
+  margin-top: 40px;
+  background-color: #e9ecef;
+  color: #888;
+}
+.admin-login-link {
+  color: #999;
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+/* --- 訂單查詢結果 --- */
+.lookup-results-container {
+  margin-top: 30px;
+}
+.order-card {
+  margin-bottom: 20px;
+}
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+.order-card-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+  border: none;
+  padding: 0;
+}
+.order-status {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+.order-card-body p {
+  margin: 8px 0;
+}
+.order-card-body ul {
+  padding-left: 20px;
+  margin: 10px 0 0 0;
+}
+.error-message {
+  color: var(--danger-color);
+  font-weight: bold;
 }
 
 /* --- 後台管理頁面 --- */
@@ -382,14 +426,26 @@ a:hover {
   padding-bottom: 15px;
 }
 .admin-nav a {
+  margin-right: 0;
   text-decoration: none;
   color: var(--text-light);
   font-weight: bold;
 }
+.admin-nav a.nav-link {
+  color: var(--primary-color);
+}
+.admin-nav a:hover {
+  color: var(--primary-color);
+}
+.admin-nav strong {
+  color: var(--text-color);
+}
 #logout-btn {
+  cursor: pointer;
   color: var(--danger-color);
   margin-left: auto;
 }
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -406,23 +462,101 @@ a:hover {
   background-color: #f9f9f9;
   font-weight: 600;
 }
+.btn-small {
+  padding: 5px 10px;
+  font-size: 14px;
+  margin-right: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  color: var(--white-color);
+}
+.btn-danger {
+  background-color: var(--danger-color);
+}
+.btn-danger:hover {
+  background-color: #c82333;
+}
+.btn-secondary {
+  background-color: #6c757d;
+}
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
 
-/* --- 手機版響應式設計 --- */
+/* --- Modal 彈出視窗 --- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1050;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 30px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+  position: relative;
+}
+.modal-close-btn {
+  color: #aaa;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.modal-close-btn:hover,
+.modal-close-btn:focus {
+  color: black;
+}
+
+/* --- 通知標記樣式 --- */
+.notification-badge {
+  background-color: var(--danger-color);
+  color: white;
+  font-size: 0.75em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  position: relative;
+  top: -8px;
+  left: -5px;
+  display: inline-block;
+  line-height: 1;
+}
+.notification-badge:empty {
+  display: none;
+}
+
+/* ================================================================ */
+/* --- 手機版響應式設計 (Responsive Web Design for Mobile) --- */
+/* ================================================================ */
+
 @media (max-width: 768px) {
   .container {
     width: 100%;
     margin: 0;
+    padding: 0;
   }
   .page-section,
-  .checkout-section,
-  .important-reminder,
-  .form-container {
+  .form-container,
+  .checkout-section {
     padding: 20px 15px;
+    background-color: var(--card-bg);
     border-radius: 0;
     box-shadow: none;
-    margin: 0 0 10px 0;
-    border: none;
     border-bottom: 5px solid var(--bg-color);
+    margin: 0;
   }
   h1,
   .form-header h1 {
@@ -432,6 +566,7 @@ a:hover {
     font-size: 1.5em;
     text-align: left;
   }
+
   .header-content {
     flex-direction: column;
     gap: 15px;
@@ -440,17 +575,20 @@ a:hover {
   .main-nav {
     width: 100%;
     overflow-x: auto;
-    padding: 15px 0;
-    border-top: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
   }
   .main-nav a {
     white-space: nowrap;
-    margin: 0 12px;
+    margin: 0 10px;
   }
+
   .product-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
+
   .cart-table thead {
     display: none;
   }
@@ -477,12 +615,30 @@ a:hover {
     margin-right: 15px;
     color: var(--text-color);
   }
+  .cart-summary {
+    text-align: left;
+    padding: 10px 0;
+  }
+  .payment-details p {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .admin-nav {
+    gap: 8px 12px;
+  }
   .admin-table {
     display: block;
     width: 100%;
+    font-size: 0.9em;
   }
   .admin-table thead {
     display: none;
+  }
+  .admin-table tbody,
+  .admin-table tr {
+    display: block;
   }
   .admin-table tr {
     margin-bottom: 15px;
@@ -507,5 +663,23 @@ a:hover {
     margin-right: auto;
     text-align: left;
     color: var(--text-color);
+  }
+  .admin-table td ul {
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+    text-align: right;
+  }
+  .status-select {
+    width: auto;
+    padding: 5px;
+    font-size: 0.9em;
+  }
+  .line-fab {
+    bottom: 15px;
+    right: 15px;
+  }
+  .line-fab img {
+    width: 110px;
   }
 }
