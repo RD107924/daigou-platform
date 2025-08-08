@@ -2,19 +2,37 @@
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale-1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>訂單結帳 - 代採購大平台</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <main class="checkout-container">
-      <div class="checkout-header">
+    <header class="site-header">
+      <div class="header-content">
+        <a href="index.html" class="site-logo-link">
+          <img
+            src="images/logo.png"
+            alt="代採購大平台 LOGO"
+            class="site-logo"
+          />
+        </a>
+        <nav class="main-nav">
+          <a href="index.html">批發貨源</a>
+          <a href="request.html">代採購</a>
+          <a href="lookup.html">訂單查詢</a>
+          <a href="checkout.html">購物車</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container form-container">
+      <div class="form-header">
         <h1>訂單結帳</h1>
         <a href="index.html">返回商店首頁</a>
       </div>
 
-      <section class="checkout-section">
+      <section class="form-section">
         <h3>您的購物車明細</h3>
         <table class="cart-table">
           <thead>
@@ -32,7 +50,7 @@
         <div class="cart-summary" id="cart-summary"></div>
       </section>
 
-      <section class="checkout-section">
+      <section class="form-section">
         <h3>請匯款至以下帳戶</h3>
         <div class="payment-details">
           <p><span>銀行:</span> <strong>富邦銀行 (012)</strong></p>
@@ -46,7 +64,7 @@
         </div>
       </section>
 
-      <section class="checkout-section">
+      <section class="form-section">
         <h3>客戶資訊</h3>
         <div class="form-group">
           <label for="paopaohu-id">跑跑虎集運會員編號 (必填)</label>
@@ -81,11 +99,14 @@
             id="last-five"
             placeholder="請輸入 5 位數字"
             required
+            maxlength="5"
+            pattern="\d{5}"
+            title="請輸入 5 位數字"
           />
         </div>
       </section>
 
-      <section class="checkout-section final-confirmation">
+      <section class="form-section final-confirmation">
         <h3>⚠️ 最終確認</h3>
         <p>
           我確認本服務僅負責代為採購商品並寄送至指定之跑跑虎集運(<span

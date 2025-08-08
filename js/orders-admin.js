@@ -27,56 +27,87 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error("無法獲取訂單列表");
       const orders = await response.json();
       orderListBody.innerHTML = "";
-      orders.forEach((order) => {
-        const itemsHtml = order.items
-          .map((item) => `<li>${item.title} (x${item.quantity})</li>`)
-          .join("");
-        const statusSelectHtml = `<select class="status-select" data-order-id="${
-          order.orderId
-        }">${statusOptions
-          .map(
-            (status) =>
-              `<option value="${status}" ${
-                order.status === status ? "selected" : ""
-              }>${status}</option>`
-          )
-          .join("")}</select>`;
 
-        // --- 新增：處理最後操作紀錄的顯示 ---
-        let lastOperationHtml = "無紀錄";
-        if (order.activityLog && order.activityLog.length > 0) {
-          const lastLog = order.activityLog[order.activityLog.length - 1];
-          lastOperationHtml = `
-                <div><strong>${lastLog.updatedBy}</strong></div>
-                <div style="font-size: 0.8em; color: #6c757d;">${new Date(
-                  lastLog.timestamp
-                ).toLocaleString()}</div>
-            `;
-        }
+      if (orders.length === 0) {
+        orderListBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">目前沒有任何訂單。</td></tr>`;
+      } else {
+        orders.forEach((order) => {
+          const itemsHtml = order.items
+            .map(
+              (item) =>
+                `<li>${item.title} (x${item.quantity}) - $${
+                  (item.price + (item.serviceFee || 0)) * item.quantity
+                }</li>`
+            )
+            .join("");
 
-        const row = `<tr>
-            <td data-label="訂單編號">${order.orderId}</td>
-            <td data-label="下單時間">${new Date(
-              order.createdAt
-            ).toLocaleString()}</td>
-            <td data-label="跑跑虎編號">${order.paopaohuId} (末五碼: ${
-          order.lastFiveDigits
-        })</td>
-            <td data-label="總金額">$${order.totalAmount}</td>
-            <td data-label="商品詳情"><ul>${itemsHtml}</ul></td>
-            <td data-label="狀態">${statusSelectHtml}</td>
-            <td data-label="最後操作">${lastOperationHtml}</td>
-        </tr>`;
-        orderListBody.insertAdjacentHTML("beforeend", row);
-      });
+          const statusSelectHtml = `<select class="status-select" data-order-id="${
+            order.orderId
+          }">${statusOptions
+            .map(
+              (status) =>
+                `<option value="${status}" ${
+                  order.status === status ? "selected" : ""
+                }>${status}</option>`
+            )
+            .join("")}</select>`;
 
-      // --- 新增：渲染完成後，立即再次檢查通知，讓紅點消失 ---
+          let lastOperationHtml = "無紀錄";
+          if (order.activityLog && order.activityLog.length > 0) {
+            const lastLog = order.activityLog[order.activityLog.length - 1];
+            lastOperationHtml = `
+                            <div><strong>${lastLog.updatedBy}</strong></div>
+                            <div style="font-size: 0.8em; color: #6c757d;">${new Date(
+                              lastLog.timestamp
+                            ).toLocaleString()}</div>
+                        `;
+          }
+
+          // 組裝客戶資訊 HTML
+          const customerInfoHtml = `
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.9em;">
+                            <li><strong>跑跑虎ID:</strong> ${
+                              order.paopaohuId
+                            }</li>
+                            <li><strong>Email:</strong> ${order.email}</li>
+                            <li><strong>末五碼:</strong> ${
+                              order.lastFiveDigits
+                            }</li>
+                            <li><strong>統編:</strong> ${
+                              order.taxId || "無"
+                            }</li>
+                        </ul>
+                    `;
+
+          // 組裝訂單資訊 HTML
+          const orderInfoHtml = `
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.9em;">
+                            <li><strong>編號:</strong> ${order.orderId}</li>
+                            <li><strong>時間:</strong> ${new Date(
+                              order.createdAt
+                            ).toLocaleString()}</li>
+                        </ul>
+                    `;
+
+          const row = `
+                        <tr>
+                            <td data-label="訂單資訊">${orderInfoHtml}</td>
+                            <td data-label="客戶資訊">${customerInfoHtml}</td>
+                            <td data-label="商品詳情"><ul style="padding-left: 15px; margin: 0;">${itemsHtml}</ul></td>
+                            <td data-label="總金額">$${order.totalAmount}</td>
+                            <td data-label="狀態">${statusSelectHtml}</td>
+                            <td data-label="最後操作">${lastOperationHtml}</td>
+                        </tr>`;
+          orderListBody.insertAdjacentHTML("beforeend", row);
+        });
+      }
+
       if (window.checkNotifications) {
         checkNotifications();
       }
     } catch (error) {
       console.error("錯誤:", error);
-      orderListBody.innerHTML = `<tr><td colspan="7">載入訂單失敗...</td></tr>`;
+      orderListBody.innerHTML = `<tr><td colspan="6">載入訂單失敗: ${error.message}</td></tr>`;
     }
   }
 
@@ -95,8 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         if (!response.ok) throw new Error("更新狀態失敗");
 
-        // 更新成功後，重新載入整個列表以顯示最新的操作紀錄
-        // 這裡會自動再次呼叫 checkNotifications
         fetchAndRenderOrders();
       } catch (error) {
         console.error("錯誤:", error);

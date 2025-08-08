@@ -4,16 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>後台訂單管理</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <div class="container" style="max-width: 1200px">
-      <h1>後台訂單管理</h1>
+    <div class="container" style="max-width: 1400px">
+      <h1>後台管理</h1>
       <nav class="admin-nav">
         <a href="index.html" class="nav-link">回到商店</a>
         <a href="admin.html">商品管理</a>
+        <a href="category-admin.html">分類管理</a>
         <a href="orders-admin.html"
-          >訂單管理<span class="notification-badge" id="orders-badge"></span
+          ><strong>訂單管理</strong
+          ><span class="notification-badge" id="orders-badge"></span
         ></a>
         <a href="requests-admin.html"
           >代採購請求<span class="notification-badge" id="requests-badge"></span
@@ -28,19 +31,19 @@
         <table class="admin-table">
           <thead>
             <tr>
-              <th>訂單編號</th>
-              <th>下單時間</th>
-              <th>跑跑虎編號</th>
-              <th>總金額</th>
+              <th>訂單資訊</th>
+              <th>客戶資訊</th>
               <th>商品詳情</th>
+              <th>總金額</th>
               <th>狀態</th>
+              <th>最後操作</th>
             </tr>
           </thead>
           <tbody id="order-list-body"></tbody>
         </table>
       </section>
     </div>
-    <script src="js/orders-admin.js" defer></script>
     <script src="js/admin-main.js" defer></script>
+    <script src="js/orders-admin.js" defer></script>
   </body>
 </html>
