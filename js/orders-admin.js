@@ -41,24 +41,42 @@ document.addEventListener("DOMContentLoaded", () => {
               }>${status}</option>`
           )
           .join("")}</select>`;
-        const row = `
-            <tr>
-                <td data-label="訂單編號">${order.orderId}</td>
-                <td data-label="下單時間">${new Date(
-                  order.createdAt
-                ).toLocaleString()}</td>
-                <td data-label="跑跑虎編號">${order.paopaohuId} (末五碼: ${
+
+        // --- 新增：處理最後操作紀錄的顯示 ---
+        let lastOperationHtml = "無紀錄";
+        if (order.activityLog && order.activityLog.length > 0) {
+          const lastLog = order.activityLog[order.activityLog.length - 1];
+          lastOperationHtml = `
+                <div><strong>${lastLog.updatedBy}</strong></div>
+                <div style="font-size: 0.8em; color: #6c757d;">${new Date(
+                  lastLog.timestamp
+                ).toLocaleString()}</div>
+            `;
+        }
+
+        const row = `<tr>
+            <td data-label="訂單編號">${order.orderId}</td>
+            <td data-label="下單時間">${new Date(
+              order.createdAt
+            ).toLocaleString()}</td>
+            <td data-label="跑跑虎編號">${order.paopaohuId} (末五碼: ${
           order.lastFiveDigits
         })</td>
-                <td data-label="總金額">$${order.totalAmount}</td>
-                <td data-label="商品詳情"><ul>${itemsHtml}</ul></td>
-                <td data-label="狀態">${statusSelectHtml}</td>
-            </tr>`;
+            <td data-label="總金額">$${order.totalAmount}</td>
+            <td data-label="商品詳情"><ul>${itemsHtml}</ul></td>
+            <td data-label="狀態">${statusSelectHtml}</td>
+            <td data-label="最後操作">${lastOperationHtml}</td>
+        </tr>`;
         orderListBody.insertAdjacentHTML("beforeend", row);
       });
+
+      // --- 新增：渲染完成後，立即再次檢查通知，讓紅點消失 ---
+      if (window.checkNotifications) {
+        checkNotifications();
+      }
     } catch (error) {
       console.error("錯誤:", error);
-      orderListBody.innerHTML = `<tr><td colspan="6">載入訂單失敗...</td></tr>`;
+      orderListBody.innerHTML = `<tr><td colspan="7">載入訂單失敗...</td></tr>`;
     }
   }
 
@@ -76,12 +94,10 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         );
         if (!response.ok) throw new Error("更新狀態失敗");
-        const result = await response.json();
-        console.log(result.message);
-        event.target.closest("tr").style.backgroundColor = "#d4edda";
-        setTimeout(() => {
-          event.target.closest("tr").style.backgroundColor = "";
-        }, 1000);
+
+        // 更新成功後，重新載入整個列表以顯示最新的操作紀錄
+        // 這裡會自動再次呼叫 checkNotifications
+        fetchAndRenderOrders();
       } catch (error) {
         console.error("錯誤:", error);
         alert("更新訂單狀態時發生錯誤。");

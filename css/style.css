@@ -677,3 +677,22 @@ a:hover {
     width: 110px;
   }
 }
+/* --- 通知標記樣式 --- */
+.notification-badge {
+  background-color: var(--danger-color);
+  color: white;
+  font-size: 0.75em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  position: relative;
+  top: -8px;
+  left: -5px;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* 如果沒有數字，就隱藏 */
+.notification-badge:empty {
+  display: none;
+}

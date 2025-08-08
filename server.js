@@ -11,14 +11,11 @@ const adapter = new JSONFile(
 const defaultData = { products: [], orders: [], users: [], requests: [] };
 const db = new Low(adapter, defaultData);
 await db.read();
-
 db.data = db.data || defaultData;
 db.data.products = db.data.products || [];
 db.data.orders = db.data.orders || [];
 db.data.users = db.data.users || [];
 db.data.requests = db.data.requests || [];
-
-// 伺服器啟動時，自動檢查並建立/更新 Randy 管理員帳號
 async function initializeAdminUser() {
   let adminUser = db.data.users.find((u) => u.username === "randy");
   if (!adminUser) {
@@ -30,7 +27,6 @@ async function initializeAdminUser() {
     console.log(`!!! 管理者 randy 已成功建立。`);
   } else {
     if (adminUser.role !== "admin") {
-      // 確保 randy 永遠是 admin
       console.log(`!!! 將管理者 ${adminUser.username} 的角色更正為 admin...`);
       adminUser.role = "admin";
       await db.write();
@@ -39,37 +35,29 @@ async function initializeAdminUser() {
   }
 }
 await initializeAdminUser();
-
 const app = express();
 const port = process.env.PORT || 3000;
 const JWT_SECRET =
   process.env.JWT_SECRET || "your_super_secret_key_12345_and_make_it_long";
-
 app.use(cors());
 app.use(express.json());
-
-// --- 中介軟體 (Middleware) ---
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (token == null) return res.sendStatus(401);
-
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
     next();
   });
 }
-
-// 新增：管理員權限驗證中介軟體
 function authorizeAdmin(req, res, next) {
   if (req.user.role !== "admin") {
     return res.status(403).json({ message: "權限不足" });
   }
   next();
 }
-
-// --- Public Routes ---
+// Public Routes
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -78,11 +66,9 @@ app.post("/api/login", async (req, res) => {
     const isPasswordMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordMatch)
       return res.status(401).json({ message: "帳號或密碼錯誤" });
-
-    // 修改點：在 token 中加入 role 資訊
     const payload = { username: user.username, role: user.role };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "8h" });
-    res.json({ message: "登入成功", token: token });
+    res.json({ message: "登入成功", token });
   } catch (error) {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
@@ -107,6 +93,8 @@ app.post("/api/orders", async (req, res) => {
       orderId: `ord_${Date.now()}`,
       createdAt: new Date().toISOString(),
       status: "待處理",
+      isNew: true,
+      activityLog: [],
       ...orderData,
     };
     db.data.orders.push(newOrder);
@@ -123,13 +111,13 @@ app.post("/api/requests", async (req, res) => {
       !requestData.productUrl ||
       !requestData.productName ||
       !requestData.contactInfo
-    ) {
+    )
       return res.status(400).json({ message: "請求資料不完整" });
-    }
     const newRequest = {
       requestId: `req_${Date.now()}`,
       receivedAt: new Date().toISOString(),
       status: "待報價",
+      isNew: true,
       ...requestData,
     };
     db.data.requests.push(newRequest);
@@ -155,8 +143,36 @@ app.get("/api/orders/lookup", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
-
-// --- Protected Routes ---
+// Protected Routes
+app.get("/api/notifications/summary", authenticateToken, (req, res) => {
+  const newOrdersCount = db.data.orders.filter((o) => o.isNew).length;
+  const newRequestsCount = db.data.requests.filter((r) => r.isNew).length;
+  res.json({ newOrdersCount, newRequestsCount });
+});
+app.get("/api/orders", authenticateToken, async (req, res) => {
+  const ordersToReturn = [...db.data.orders].reverse();
+  let updated = false;
+  db.data.orders.forEach((order) => {
+    if (order.isNew) {
+      order.isNew = false;
+      updated = true;
+    }
+  });
+  if (updated) await db.write();
+  res.json(ordersToReturn);
+});
+app.get("/api/requests", authenticateToken, async (req, res) => {
+  const requestsToReturn = [...db.data.requests].reverse();
+  let updated = false;
+  db.data.requests.forEach((request) => {
+    if (request.isNew) {
+      request.isNew = false;
+      updated = true;
+    }
+  });
+  if (updated) await db.write();
+  res.json(requestsToReturn);
+});
 app.patch("/api/user/password", authenticateToken, async (req, res) => {
   try {
     const { username } = req.user;
@@ -198,17 +214,14 @@ app.delete("/api/products/:id", authenticateToken, async (req, res) => {
   await db.write();
   res.status(200).json({ message: "商品刪除成功" });
 });
-app.get("/api/orders", authenticateToken, (req, res) => {
-  const sortedOrders = [...db.data.orders].reverse();
-  res.json(sortedOrders);
-});
 app.patch(
   "/api/orders/:orderId/status",
   authenticateToken,
   async (req, res) => {
     try {
       const { orderId } = req.params;
-      const { status } = req.body;
+      const { status: newStatus } = req.body;
+      const operatorUsername = req.user.username;
       const allowedStatus = [
         "待處理",
         "已通知廠商發貨",
@@ -216,23 +229,34 @@ app.patch(
         "已完成",
         "訂單取消",
       ];
-      if (!status || !allowedStatus.includes(status))
+      if (!newStatus || !allowedStatus.includes(newStatus)) {
         return res.status(400).json({ message: "無效的訂單狀態" });
+      }
       const orderToUpdate = db.data.orders.find((o) => o.orderId === orderId);
-      if (!orderToUpdate)
+      if (!orderToUpdate) {
         return res.status(404).json({ message: "找不到該訂單" });
-      orderToUpdate.status = status;
-      await db.write();
+      }
+      const oldStatus = orderToUpdate.status;
+      if (oldStatus !== newStatus) {
+        orderToUpdate.status = newStatus;
+        const logEntry = {
+          timestamp: new Date().toISOString(),
+          updatedBy: operatorUsername,
+          action: `狀態由「${oldStatus}」更新為「${newStatus}」`,
+        };
+        if (!Array.isArray(orderToUpdate.activityLog)) {
+          orderToUpdate.activityLog = [];
+        }
+        orderToUpdate.activityLog.push(logEntry);
+        await db.write();
+      }
       res.json({ message: "訂單狀態更新成功", order: orderToUpdate });
     } catch (error) {
+      console.error("更新訂單狀態時發生錯誤:", error);
       res.status(500).json({ message: "伺服器內部錯誤" });
     }
   }
 );
-app.get("/api/requests", authenticateToken, (req, res) => {
-  const sortedRequests = [...db.data.requests].reverse();
-  res.json(sortedRequests);
-});
 app.patch(
   "/api/requests/:requestId/status",
   authenticateToken,
@@ -255,8 +279,7 @@ app.patch(
     }
   }
 );
-
-// --- Admin Only Routes ---
+// Admin Only Routes
 app.get("/api/users", authenticateToken, authorizeAdmin, (req, res) => {
   const users = db.data.users.map(({ passwordHash, ...user }) => user);
   res.json(users);
@@ -298,8 +321,47 @@ app.delete(
     }
   }
 );
+app.patch(
+  "/api/orders/:orderId/assign",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      const { username } = req.body;
+      const orderToUpdate = db.data.orders.find((o) => o.orderId === orderId);
+      if (!orderToUpdate)
+        return res.status(404).json({ message: "找不到該訂單" });
+      orderToUpdate.assignedTo = username || null;
+      await db.write();
+      res.json({ message: "訂單指派成功", order: orderToUpdate });
+    } catch (error) {
+      res.status(500).json({ message: "伺服器內部錯誤" });
+    }
+  }
+);
+app.patch(
+  "/api/requests/:requestId/assign",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { requestId } = req.params;
+      const { username } = req.body;
+      const requestToUpdate = db.data.requests.find(
+        (r) => r.requestId === requestId
+      );
+      if (!requestToUpdate)
+        return res.status(404).json({ message: "找不到該請求" });
+      requestToUpdate.assignedTo = username || null;
+      await db.write();
+      res.json({ message: "請求指派成功", request: requestToUpdate });
+    } catch (error) {
+      res.status(500).json({ message: "伺服器內部錯誤" });
+    }
+  }
+);
 
-// 啟動伺服器
 app.listen(port, () => {
   console.log(`伺服器成功啟動！正在監聽 http://localhost:${port}`);
 });
