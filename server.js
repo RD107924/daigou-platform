@@ -107,7 +107,6 @@ app.post("/api/orders", async (req, res) => {
       status: "待處理",
       isNew: true,
       activityLog: [],
-      assignedTo: null,
       ...orderData,
     };
     db.data.orders.push(newOrder);
@@ -131,7 +130,6 @@ app.post("/api/requests", async (req, res) => {
       receivedAt: new Date().toISOString(),
       status: "待報價",
       isNew: true,
-      assignedTo: null,
       ...requestData,
     };
     db.data.requests.push(newRequest);
@@ -237,6 +235,8 @@ app.delete("/api/products/:id", authenticateToken, async (req, res) => {
   await db.write();
   res.status(200).json({ message: "商品刪除成功" });
 });
+
+// **--- 唯一的修改點在這裡 ---**
 app.patch(
   "/api/orders/:orderId/status",
   authenticateToken,
@@ -244,7 +244,7 @@ app.patch(
     try {
       const { orderId } = req.params;
       const { status: newStatus } = req.body;
-      const operatorUsername = req.user.username;
+      const operatorUsername = req.user.username; // 從 token 取得當前操作者的 username
       const allowedStatus = [
         "待處理",
         "已通知廠商發貨",
@@ -280,6 +280,7 @@ app.patch(
     }
   }
 );
+
 app.patch(
   "/api/requests/:requestId/status",
   authenticateToken,
@@ -365,8 +366,6 @@ app.patch(
     }
   }
 );
-
-// **--- 新增的 API 在這裡 ---**
 app.patch(
   "/api/orders/:orderId/assign",
   authenticateToken,
@@ -386,7 +385,6 @@ app.patch(
     }
   }
 );
-
 app.patch(
   "/api/requests/:requestId/assign",
   authenticateToken,
