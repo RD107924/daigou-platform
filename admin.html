@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>後台商品管理</title>
     <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   </head>
   <body>
     <div class="container">
       <h1>後台商品管理</h1>
       <nav class="admin-nav">
         <a href="index.html" class="nav-link">回到商店</a>
-        <a href="admin.html">商品管理</a>
+        <a href="admin.html"><strong>商品管理</strong></a>
         <a href="orders-admin.html"
           >訂單管理<span class="notification-badge" id="orders-badge"></span
         ></a>
@@ -57,7 +58,13 @@
       </section>
 
       <section class="admin-section">
-        <h2>現有商品列表</h2>
+        <div class="section-header">
+          <h2>現有商品列表</h2>
+          <button id="save-sort-btn" class="btn-primary" style="display: none">
+            儲存排序
+          </button>
+        </div>
+        <p class="text-light">您可以直接用滑鼠拖曳表格中的項目來進行排序。</p>
         <table class="admin-table">
           <thead>
             <tr>
@@ -105,7 +112,7 @@
       </div>
     </div>
 
-    <script src="js/admin.js" defer></script>
     <script src="js/admin-main.js" defer></script>
+    <script src="js/admin.js" defer></script>
   </body>
 </html>

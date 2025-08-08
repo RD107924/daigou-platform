@@ -11,11 +11,13 @@ const adapter = new JSONFile(
 const defaultData = { products: [], orders: [], users: [], requests: [] };
 const db = new Low(adapter, defaultData);
 await db.read();
+
 db.data = db.data || defaultData;
 db.data.products = db.data.products || [];
 db.data.orders = db.data.orders || [];
 db.data.users = db.data.users || [];
 db.data.requests = db.data.requests || [];
+
 async function initializeAdminUser() {
   let adminUser = db.data.users.find((u) => u.username === "randy");
   if (!adminUser) {
@@ -35,16 +37,20 @@ async function initializeAdminUser() {
   }
 }
 await initializeAdminUser();
+
 const app = express();
 const port = process.env.PORT || 3000;
 const JWT_SECRET =
   process.env.JWT_SECRET || "your_super_secret_key_12345_and_make_it_long";
+
 app.use(cors());
 app.use(express.json());
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (token == null) return res.sendStatus(401);
+
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
@@ -57,7 +63,8 @@ function authorizeAdmin(req, res, next) {
   }
   next();
 }
-// Public Routes
+
+// --- Public Routes ---
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -73,7 +80,12 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
-app.get("/api/products", (req, res) => res.json(db.data.products));
+app.get("/api/products", (req, res) => {
+  const sortedProducts = [...db.data.products].sort(
+    (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
+  );
+  res.json(sortedProducts);
+});
 app.get("/api/products/:id", (req, res) => {
   const product = db.data.products.find((p) => p.id === req.params.id);
   if (!product) return res.status(404).json({ message: "找不到該商品" });
@@ -95,6 +107,7 @@ app.post("/api/orders", async (req, res) => {
       status: "待處理",
       isNew: true,
       activityLog: [],
+      assignedTo: null,
       ...orderData,
     };
     db.data.orders.push(newOrder);
@@ -118,6 +131,7 @@ app.post("/api/requests", async (req, res) => {
       receivedAt: new Date().toISOString(),
       status: "待報價",
       isNew: true,
+      assignedTo: null,
       ...requestData,
     };
     db.data.requests.push(newRequest);
@@ -143,7 +157,8 @@ app.get("/api/orders/lookup", async (req, res) => {
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
-// Protected Routes
+
+// --- Protected Routes ---
 app.get("/api/notifications/summary", authenticateToken, (req, res) => {
   const newOrdersCount = db.data.orders.filter((o) => o.isNew).length;
   const newRequestsCount = db.data.requests.filter((r) => r.isNew).length;
@@ -195,7 +210,15 @@ app.patch("/api/user/password", authenticateToken, async (req, res) => {
   }
 });
 app.post("/api/products", authenticateToken, async (req, res) => {
-  const newProduct = { id: `p${Date.now()}`, ...req.body };
+  const maxOrder = db.data.products.reduce(
+    (max, p) => Math.max(max, p.sortOrder || 0),
+    -1
+  );
+  const newProduct = {
+    id: `p${Date.now()}`,
+    sortOrder: maxOrder + 1,
+    ...req.body,
+  };
   db.data.products.push(newProduct);
   await db.write();
   res.status(201).json(newProduct);
@@ -279,7 +302,8 @@ app.patch(
     }
   }
 );
-// Admin Only Routes
+
+// --- Admin Only Routes ---
 app.get("/api/users", authenticateToken, authorizeAdmin, (req, res) => {
   const users = db.data.users.map(({ passwordHash, ...user }) => user);
   res.json(users);
@@ -322,6 +346,28 @@ app.delete(
   }
 );
 app.patch(
+  "/api/products/order",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { orderedIds } = req.body;
+      if (!Array.isArray(orderedIds))
+        return res.status(400).json({ message: "資料格式不正確" });
+      orderedIds.forEach((id, index) => {
+        const product = db.data.products.find((p) => p.id === id);
+        if (product) product.sortOrder = index;
+      });
+      await db.write();
+      res.json({ message: "商品順序已更新" });
+    } catch (error) {
+      res.status(500).json({ message: "伺服器內部錯誤" });
+    }
+  }
+);
+
+// **--- 新增的 API 在這裡 ---**
+app.patch(
   "/api/orders/:orderId/assign",
   authenticateToken,
   authorizeAdmin,
@@ -340,6 +386,7 @@ app.patch(
     }
   }
 );
+
 app.patch(
   "/api/requests/:requestId/assign",
   authenticateToken,
@@ -362,6 +409,7 @@ app.patch(
   }
 );
 
+// 啟動伺服器
 app.listen(port, () => {
   console.log(`伺服器成功啟動！正在監聽 http://localhost:${port}`);
 });
