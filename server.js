@@ -18,14 +18,12 @@ const defaultData = {
 };
 const db = new Low(adapter, defaultData);
 await db.read();
-
 db.data = db.data || defaultData;
 db.data.products = db.data.products || [];
 db.data.orders = db.data.orders || [];
 db.data.users = db.data.users || [];
 db.data.requests = db.data.requests || [];
 db.data.categories = db.data.categories || [];
-
 async function initializeAdminUser() {
   let adminUser = db.data.users.find((u) => u.username === "randy");
   if (!adminUser) {
@@ -46,10 +44,9 @@ async function initializeAdminUser() {
 }
 await initializeAdminUser();
 
-// --- SendGrid 設定 ---
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const NOTIFICATION_EMAIL = "rruntiger@gmail.com";
-const FROM_EMAIL = "rruntiger@gmail.com"; // 請確保這個寄件人已經在 SendGrid 完成驗證
+const FROM_EMAIL = "rruntiger@gmail.com";
 
 async function sendEmailNotification({ subject, text, html }) {
   if (!process.env.SENDGRID_API_KEY) {
@@ -67,10 +64,12 @@ async function sendEmailNotification({ subject, text, html }) {
     await sgMail.send(msg);
     console.log("郵件通知已成功寄出至:", NOTIFICATION_EMAIL);
   } catch (error) {
-    console.error(
-      "寄送郵件時發生錯誤:",
-      error.response ? error.response.body : error
-    );
+    console.error("!!! 寄送郵件時發生嚴重錯誤 !!!");
+    if (error.response) {
+      console.error("SendGrid Error Body:", error.response.body);
+    } else {
+      console.error("Error:", error);
+    }
   }
 }
 
@@ -86,7 +85,6 @@ function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (token == null) return res.sendStatus(401);
-
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
@@ -222,7 +220,7 @@ app.get("/api/categories", async (req, res) => {
   }
 });
 
-// --- Protected Routes ---
+// --- Protected Routes & Admin Only Routes ---
 app.get("/api/notifications/summary", authenticateToken, (req, res) => {
   const newOrdersCount = db.data.orders.filter((o) => o.isNew).length;
   const newRequestsCount = db.data.requests.filter((r) => r.isNew).length;
@@ -366,8 +364,6 @@ app.patch(
     }
   }
 );
-
-// --- Admin Only Routes ---
 app.get("/api/users", authenticateToken, authorizeAdmin, (req, res) => {
   const users = db.data.users.map(({ passwordHash, ...user }) => user);
   res.json(users);
@@ -430,7 +426,6 @@ app.patch(
   }
 );
 
-// 啟動伺服器
 app.listen(port, () => {
   console.log(`伺服器成功啟動！正在監聽 http://localhost:${port}`);
 });
