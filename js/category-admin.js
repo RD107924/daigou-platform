@@ -16,10 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchAndRenderCategories() {
     try {
-      // 這個 API 是公開的，但為了統一，我們還是加上 token
-      const response = await fetch(`${API_BASE_URL}/api/categories`, {
-        headers: authHeaders,
-      });
+      const response = await fetch(`${API_BASE_URL}/api/categories`);
       if (!response.ok) throw new Error("無法獲取分類列表");
       const categories = await response.json();
 
@@ -100,10 +97,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.getElementById("logout-btn").addEventListener("click", () => {
-    localStorage.removeItem("authToken");
-    window.location.href = "login.html";
-  });
+  // 如果有登出按鈕，加上事件監聽
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
+    });
+  }
 
   fetchAndRenderCategories();
 });

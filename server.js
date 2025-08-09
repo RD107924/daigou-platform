@@ -472,57 +472,48 @@ app.post(
     }
   }
 );
-
-// **--- 新增的 API 在這裡 ---**
-app.get("/api/dashboard-summary", authenticateToken, (req, res) => {
-  try {
-    const now = new Date();
-    const todayStart = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
-    const thisWeekStart = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() - now.getDay()
-    );
-    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const thisYearStart = new Date(now.getFullYear(), 0, 1);
-
-    const getStats = (orders, startDate) => {
-      const filteredOrders = orders.filter(
-        (o) => new Date(o.createdAt) >= startDate
-      );
-      return {
-        count: filteredOrders.length,
-        sales: filteredOrders.reduce((sum, o) => sum + o.totalAmount, 0),
-      };
-    };
-
-    const todayStats = getStats(db.data.orders, todayStart);
-    const weekStats = getStats(db.data.orders, thisWeekStart);
-    const monthStats = getStats(db.data.orders, thisMonthStart);
-    const yearStats = getStats(db.data.orders, thisYearStart);
-
-    const newOrdersCount = db.data.orders.filter((o) => o.isNew).length;
-    const pendingRequestsCount = db.data.requests.filter(
-      (r) => r.status === "待報價"
-    ).length;
-
-    res.json({
-      today: todayStats,
-      thisWeek: weekStats,
-      thisMonth: monthStats,
-      thisYear: yearStats,
-      newOrdersCount,
-      pendingRequestsCount,
-    });
-  } catch (error) {
-    console.error("生成儀表板摘要時發生錯誤:", error);
-    res.status(500).json({ message: "伺服器內部錯誤" });
+app.post(
+  "/api/categories",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { name } = req.body;
+      if (!name) {
+        return res.status(400).json({ message: "分類名稱為必填項" });
+      }
+      const existingCategory = db.data.categories.find((c) => c.name === name);
+      if (existingCategory) {
+        return res.status(409).json({ message: "此分類已存在" });
+      }
+      const newCategory = { id: `cat_${Date.now()}`, name };
+      db.data.categories.push(newCategory);
+      await db.write();
+      res.status(201).json(newCategory);
+    } catch (error) {
+      res.status(500).json({ message: "伺服器內部錯誤" });
+    }
   }
-});
+);
+app.delete(
+  "/api/categories/:id",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const categoryIndex = db.data.categories.findIndex((c) => c.id === id);
+      if (categoryIndex === -1) {
+        return res.status(404).json({ message: "找不到該分類" });
+      }
+      db.data.categories.splice(categoryIndex, 1);
+      await db.write();
+      res.status(200).json({ message: "分類刪除成功" });
+    } catch (error) {
+      res.status(500).json({ message: "伺服器內部錯誤" });
+    }
+  }
+);
 
 // 啟動伺服器
 app.listen(port, () => {
