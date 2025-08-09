@@ -698,3 +698,30 @@ a:hover {
   padding-left: 15px;
   margin: 0;
 }
+/* --- 後台區塊標頭樣式 --- */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.section-header h2 {
+  margin-bottom: 0;
+}
+.bulk-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* --- 後台表格響應式微調 --- */
+.table-responsive {
+  overflow-x: auto; /* 在電腦版小螢幕時，允許表格水平滾動 */
+}
+
+@media (max-width: 992px) {
+  .data-table td[data-label="選取"] {
+    order: -1; /* 在手機版卡片中，讓選取框顯示在最上面 */
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}

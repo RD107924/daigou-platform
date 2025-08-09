@@ -27,20 +27,38 @@
       </nav>
 
       <section class="admin-section">
-        <h2>所有訂單列表</h2>
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>訂單資訊</th>
-              <th>客戶資訊</th>
-              <th>商品詳情</th>
-              <th>總金額</th>
-              <th>狀態</th>
-              <th>最後操作</th>
-            </tr>
-          </thead>
-          <tbody id="order-list-body"></tbody>
-        </table>
+        <div class="section-header">
+          <h2>所有訂單列表</h2>
+          <div class="bulk-actions">
+            <button
+              id="bulk-delete-btn"
+              class="btn-small btn-danger"
+              style="display: none"
+            >
+              刪除選取項目
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table data-table">
+            <thead>
+              <tr>
+                <th style="width: 40px">
+                  <input type="checkbox" id="select-all-checkbox" />
+                </th>
+                <th>訂單資訊</th>
+                <th>客戶資訊</th>
+                <th>商品詳情</th>
+                <th>總金額</th>
+                <th>狀態</th>
+                <th>最後操作</th>
+                <th style="width: 80px">操作</th>
+              </tr>
+            </thead>
+            <tbody id="order-list-body"></tbody>
+          </table>
+        </div>
       </section>
     </div>
     <script src="js/admin-main.js" defer></script>

@@ -18,12 +18,14 @@ const defaultData = {
 };
 const db = new Low(adapter, defaultData);
 await db.read();
+
 db.data = db.data || defaultData;
 db.data.products = db.data.products || [];
 db.data.orders = db.data.orders || [];
 db.data.users = db.data.users || [];
 db.data.requests = db.data.requests || [];
 db.data.categories = db.data.categories || [];
+
 async function initializeAdminUser() {
   let adminUser = db.data.users.find((u) => u.username === "randy");
   if (!adminUser) {
@@ -220,7 +222,7 @@ app.get("/api/categories", async (req, res) => {
   }
 });
 
-// --- Protected Routes & Admin Only Routes ---
+// --- Protected Routes ---
 app.get("/api/notifications/summary", authenticateToken, (req, res) => {
   const newOrdersCount = db.data.orders.filter((o) => o.isNew).length;
   const newRequestsCount = db.data.requests.filter((r) => r.isNew).length;
@@ -364,6 +366,8 @@ app.patch(
     }
   }
 );
+
+// --- Admin Only Routes ---
 app.get("/api/users", authenticateToken, authorizeAdmin, (req, res) => {
   const users = db.data.users.map(({ passwordHash, ...user }) => user);
   res.json(users);
@@ -426,6 +430,61 @@ app.patch(
   }
 );
 
+// **--- 新增的 API 在這裡 ---**
+// 刪除單筆訂單
+app.delete(
+  "/api/orders/:orderId",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      const initialCount = db.data.orders.length;
+
+      db.data.orders = db.data.orders.filter((o) => o.orderId !== orderId);
+
+      if (db.data.orders.length === initialCount) {
+        return res.status(404).json({ message: "找不到該訂單" });
+      }
+
+      await db.write();
+      res.status(200).json({ message: "訂單刪除成功" });
+    } catch (error) {
+      res.status(500).json({ message: "伺服器內部錯誤" });
+    }
+  }
+);
+
+// 批量刪除訂單
+app.post(
+  "/api/orders/bulk-delete",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { orderIds } = req.body; // 接收一個包含 orderId 的陣列
+      if (!Array.isArray(orderIds) || orderIds.length === 0) {
+        return res.status(400).json({ message: "請提供要刪除的訂單 ID" });
+      }
+
+      const initialCount = db.data.orders.length;
+      db.data.orders = db.data.orders.filter(
+        (o) => !orderIds.includes(o.orderId)
+      );
+      const deletedCount = initialCount - db.data.orders.length;
+
+      if (deletedCount > 0) {
+        await db.write();
+      }
+
+      res.status(200).json({ message: `成功刪除 ${deletedCount} 筆訂單` });
+    } catch (error) {
+      res.status(500).json({ message: "伺服器內部錯誤" });
+    }
+  }
+);
+
+// 啟動伺服器
 app.listen(port, () => {
   console.log(`伺服器成功啟動！正在監聽 http://localhost:${port}`);
 });
