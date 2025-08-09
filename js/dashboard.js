@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "login.html";
     return;
   }
+  // 準備好要重複使用的 headers
   const authHeaders = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -18,9 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchDashboardData() {
     try {
+      // --- 唯一的修改點在這裡 ---
+      // 在 fetch 請求中加入 headers: authHeaders
       const response = await fetch(`${API_BASE_URL}/api/dashboard-summary`, {
         headers: authHeaders,
       });
+
       if (!response.ok) throw new Error("無法獲取儀表板資料");
 
       const data = await response.json();
@@ -50,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("錯誤:", error);
       document.querySelector(
         ".dashboard-summary-grid"
-      ).innerHTML = `<p>無法載入摘要資訊: ${error.message}</p>`;
+      ).innerHTML = `<p style="color: red;">無法載入摘要資訊: ${error.message}</p>`;
     }
   }
 
@@ -59,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (salesChart) {
       salesChart.destroy(); // 如果圖表已存在，先銷毀
     }
+    if (!salesChartCanvas) return;
     const ctx = salesChartCanvas.getContext("2d");
     salesChart = new Chart(ctx, {
       type: "bar",
@@ -75,10 +80,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  document.getElementById("logout-btn").addEventListener("click", () => {
-    localStorage.removeItem("authToken");
-    window.location.href = "login.html";
-  });
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
+    });
+  }
 
   fetchDashboardData();
 });
