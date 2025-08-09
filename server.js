@@ -367,6 +367,51 @@ app.patch(
   }
 );
 
+// **--- 新增的 API 在這裡 ---**
+app.get("/api/dashboard-summary", authenticateToken, (req, res) => {
+  try {
+    const now = new Date();
+    // 修正時區問題，確保以 UTC+8 計算
+    const todayStart = new Date(
+      now.toLocaleString("en-US", { timeZone: "Asia/Taipei" })
+    );
+    todayStart.setHours(0, 0, 0, 0);
+
+    const dayOfWeek = todayStart.getDay(); // 0 是星期日
+    const diff = todayStart.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // 調整為以星期一為開始
+    const thisWeekStart = new Date(todayStart.setDate(diff));
+
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thisYearStart = new Date(now.getFullYear(), 0, 1);
+
+    const getStats = (orders, startDate) => {
+      const filteredOrders = orders.filter(
+        (o) => new Date(o.createdAt) >= startDate
+      );
+      return {
+        count: filteredOrders.length,
+        sales: filteredOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0),
+      };
+    };
+
+    const todayStats = getStats(db.data.orders, todayStart);
+    const weekStats = getStats(db.data.orders, thisWeekStart);
+    const monthStats = getStats(db.data.orders, thisMonthStart);
+    const yearStats = getStats(db.data.orders, thisYearStart);
+
+    res.json({
+      today: todayStats,
+      thisWeek: weekStats,
+      thisMonth: monthStats,
+      thisYear: yearStats,
+    });
+  } catch (error) {
+    console.error("生成儀表板摘要時發生錯誤:", error);
+    res.status(500).json({ message: "伺服器內部錯誤" });
+  }
+});
+// **--- 新增 API 結束 ---**
+
 // --- Admin Only Routes ---
 app.get("/api/users", authenticateToken, authorizeAdmin, (req, res) => {
   const users = db.data.users.map(({ passwordHash, ...user }) => user);
