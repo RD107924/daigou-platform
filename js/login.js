@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("authToken", result.token);
 
       // 跳轉到後台管理主頁
-      window.location.href = "admin.html";
+      window.location.href = "dashboard.html";
     } catch (error) {
       console.error("登入錯誤:", error);
       errorMessageDiv.textContent = error.message;

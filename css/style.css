@@ -725,3 +725,33 @@ a:hover {
     padding-bottom: 0;
   }
 }
+/* --- 儀表板樣式 --- */
+.dashboard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+.summary-card {
+  background-color: #f8f9fa;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+.summary-card h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: var(--text-light);
+  font-size: 1em;
+}
+.summary-card p {
+  margin: 0;
+  font-size: 2.2em;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+.chart-container {
+  position: relative;
+  height: 400px; /* 給圖表一個固定高度 */
+  width: 100%;
+}
