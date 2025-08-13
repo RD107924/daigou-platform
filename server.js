@@ -2,7 +2,7 @@ import express from "express";
 import { Low } from "lowdb";
 import { JSONFile } from "lowdb/node";
 import cors from "cors";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import sgMail from "@sendgrid/mail";
 import "dotenv/config"; // 管理環境變數
