@@ -5,7 +5,7 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import sgMail from "@sendgrid/mail";
-import "dotenv/config"; // 建議使用 dotenv 管理環境變數
+import "dotenv/config"; // 管理環境變數
 
 // ================================================================
 // --- 初始化與設定 (Initialization & Configuration) ---
@@ -133,21 +133,30 @@ app.post("/api/login", async (req, res, next) => {
   }
 });
 
-app.get("/api/products", (req, res) => {
-  // 只回傳上架的商品給前台
-  const publishedProducts = db.data.products.filter(
-    (p) => p.status === "published"
-  );
-  const sortedProducts = [...publishedProducts].sort(
-    (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
-  );
-  res.json(sortedProducts);
+app.get("/api/products", (req, res, next) => {
+  try {
+    // ▼▼▼ 關鍵修復 ▼▼▼
+    // 如果商品狀態為 'published' 或 'undefined' (代表是舊資料)，都將其視為上架商品
+    const publishedProducts = db.data.products.filter(
+      (p) => p.status === "published" || p.status === undefined
+    );
+    const sortedProducts = [...publishedProducts].sort(
+      (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
+    );
+    res.json(sortedProducts);
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.get("/api/products/:id", (req, res) => {
-  const product = db.data.products.find((p) => p.id === req.params.id);
-  if (!product) return res.status(404).json({ message: "找不到該商品" });
-  res.json(product);
+app.get("/api/products/:id", (req, res, next) => {
+  try {
+    const product = db.data.products.find((p) => p.id === req.params.id);
+    if (!product) return res.status(404).json({ message: "找不到該商品" });
+    res.json(product);
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.post("/api/orders", async (req, res, next) => {
@@ -234,10 +243,14 @@ app.get("/api/categories", async (req, res, next) => {
 });
 
 // --- 受保護路由 (Protected Routes, 需登入) ---
-app.get("/api/notifications/summary", authenticateToken, (req, res) => {
-  const newOrdersCount = db.data.orders.filter((o) => o.isNew).length;
-  const newRequestsCount = db.data.requests.filter((r) => r.isNew).length;
-  res.json({ newOrdersCount, newRequestsCount });
+app.get("/api/notifications/summary", authenticateToken, (req, res, next) => {
+  try {
+    const newOrdersCount = db.data.orders.filter((o) => o.isNew).length;
+    const newRequestsCount = db.data.requests.filter((r) => r.isNew).length;
+    res.json({ newOrdersCount, newRequestsCount });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get("/api/dashboard-summary", authenticateToken, (req, res, next) => {
@@ -249,7 +262,7 @@ app.get("/api/dashboard-summary", authenticateToken, (req, res, next) => {
     todayStart.setHours(0, 0, 0, 0);
     const dayOfWeek = todayStart.getDay();
     const diff = todayStart.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    const thisWeekStart = new Date(todayStart.setDate(diff));
+    const thisWeekStart = new Date(new Date(todayStart).setDate(diff)); // 修正以避免影響 todayStart
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const thisYearStart = new Date(now.getFullYear(), 0, 1);
     const getStats = (orders, startDate) => {
@@ -288,21 +301,22 @@ app.patch("/api/user/password", authenticateToken, async (req, res, next) => {
 });
 
 // --- 管理員路由 (Admin Only Routes) ---
-
-// 獲取所有商品 (給後台，包含草稿)
 app.get(
   "/api/admin/products",
   authenticateToken,
   authorizeAdmin,
-  (req, res) => {
-    const sortedProducts = [...db.data.products].sort(
-      (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
-    );
-    res.json(sortedProducts);
+  (req, res, next) => {
+    try {
+      const sortedProducts = [...db.data.products].sort(
+        (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
+      );
+      res.json(sortedProducts);
+    } catch (error) {
+      next(error);
+    }
   }
 );
 
-// 新增商品
 app.post(
   "/api/products",
   authenticateToken,
@@ -349,7 +363,6 @@ app.post(
   }
 );
 
-// 更新商品
 app.put(
   "/api/products/:id",
   authenticateToken,
@@ -376,7 +389,6 @@ app.put(
         sortOrder,
       } = req.body;
 
-      // 使用白名單模式安全地更新欄位
       if (title !== undefined) productToUpdate.title = title;
       if (price !== undefined) productToUpdate.price = Number(price);
       if (category !== undefined) productToUpdate.category = category;
@@ -400,7 +412,6 @@ app.put(
   }
 );
 
-// 刪除商品
 app.delete(
   "/api/products/:id",
   authenticateToken,
@@ -418,7 +429,6 @@ app.delete(
   }
 );
 
-// 更新商品排序
 app.patch(
   "/api/products/order",
   authenticateToken,
@@ -440,9 +450,6 @@ app.patch(
   }
 );
 
-// (所有 Orders, Requests, Users, Categories 的管理路由)
-// ... 這部分維持您原有的完整邏輯，但統一用 next(error) 處理錯誤 ...
-// 範例：
 app.get(
   "/api/orders",
   authenticateToken,
@@ -496,75 +503,198 @@ app.patch(
   }
 );
 
-// [其他所有管理路由... 請確保它們都在這裡，並使用 try/catch/next(error) 模式]
-// ...
-app.get(
-  "/api/requests",
-  authenticateToken,
-  authorizeAdmin,
-  async (req, res, next) => {
-    /* ... */
-  }
-);
-app.patch(
-  "/api/requests/:requestId/status",
-  authenticateToken,
-  authorizeAdmin,
-  async (req, res, next) => {
-    /* ... */
-  }
-);
-app.get("/api/users", authenticateToken, authorizeAdmin, (req, res) => {
-  /* ... */
-});
-app.post(
-  "/api/users",
-  authenticateToken,
-  authorizeAdmin,
-  async (req, res, next) => {
-    /* ... */
-  }
-);
-app.delete(
-  "/api/users/:username",
-  authenticateToken,
-  authorizeAdmin,
-  async (req, res, next) => {
-    /* ... */
-  }
-);
 app.delete(
   "/api/orders/:orderId",
   authenticateToken,
   authorizeAdmin,
   async (req, res, next) => {
-    /* ... */
+    try {
+      const { orderId } = req.params;
+      const initialCount = db.data.orders.length;
+      db.data.orders = db.data.orders.filter((o) => o.orderId !== orderId);
+      if (db.data.orders.length === initialCount) {
+        return res.status(404).json({ message: "找不到該訂單" });
+      }
+      await db.write();
+      res.status(200).json({ message: "訂單刪除成功" });
+    } catch (error) {
+      next(error);
+    }
   }
 );
+
 app.post(
   "/api/orders/bulk-delete",
   authenticateToken,
   authorizeAdmin,
   async (req, res, next) => {
-    /* ... */
+    try {
+      const { orderIds } = req.body;
+      if (!Array.isArray(orderIds) || orderIds.length === 0) {
+        return res.status(400).json({ message: "請提供要刪除的訂單 ID" });
+      }
+      const initialCount = db.data.orders.length;
+      db.data.orders = db.data.orders.filter(
+        (o) => !orderIds.includes(o.orderId)
+      );
+      const deletedCount = initialCount - db.data.orders.length;
+      if (deletedCount > 0) {
+        await db.write();
+      }
+      res.status(200).json({ message: `成功刪除 ${deletedCount} 筆訂單` });
+    } catch (error) {
+      next(error);
+    }
   }
 );
+
+app.get(
+  "/api/requests",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res, next) => {
+    try {
+      const requestsToReturn = [...db.data.requests].reverse();
+      let updated = false;
+      requestsToReturn.forEach((request) => {
+        if (request.isNew) {
+          request.isNew = false;
+          updated = true;
+        }
+      });
+      if (updated) await db.write();
+      res.json(requestsToReturn);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+app.patch(
+  "/api/requests/:requestId/status",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res, next) => {
+    try {
+      const { requestId } = req.params;
+      const { status } = req.body;
+      const requestToUpdate = db.data.requests.find(
+        (r) => r.requestId === requestId
+      );
+      if (!requestToUpdate)
+        return res.status(404).json({ message: "找不到該請求" });
+      requestToUpdate.status = status;
+      await db.write();
+      res.json({ message: "請求狀態更新成功", request: requestToUpdate });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+app.get("/api/users", authenticateToken, authorizeAdmin, (req, res, next) => {
+  try {
+    const users = db.data.users.map(({ passwordHash, ...user }) => user);
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post(
+  "/api/users",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res, next) => {
+    try {
+      const { username, password, role } = req.body;
+      if (!username || !password || !role)
+        return res.status(400).json({ message: "帳號、密碼和角色為必填項" });
+      if (db.data.users.find((u) => u.username === username))
+        return res.status(409).json({ message: "此帳號已存在" });
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      const newUser = {
+        id: `user_${Date.now()}`,
+        username,
+        passwordHash,
+        role,
+      };
+      db.data.users.push(newUser);
+      await db.write();
+
+      const { passwordHash: _, ...userToReturn } = newUser;
+      res.status(201).json(userToReturn);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+app.delete(
+  "/api/users/:username",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res, next) => {
+    try {
+      const { username } = req.params;
+      if (username === "randy")
+        return res.status(403).json({ message: "無法刪除最高管理員帳號" });
+
+      const userIndex = db.data.users.findIndex((u) => u.username === username);
+      if (userIndex === -1)
+        return res.status(404).json({ message: "找不到該使用者" });
+
+      db.data.users.splice(userIndex, 1);
+      await db.write();
+      res.status(200).json({ message: "使用者刪除成功" });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 app.post(
   "/api/categories",
   authenticateToken,
   authorizeAdmin,
   async (req, res, next) => {
-    /* ... */
+    try {
+      const { name } = req.body;
+      if (!name) return res.status(400).json({ message: "分類名稱為必填項" });
+      if (db.data.categories.find((c) => c.name === name))
+        return res.status(409).json({ message: "此分類已存在" });
+
+      const newCategory = { id: `cat_${Date.now()}`, name };
+      db.data.categories.push(newCategory);
+      await db.write();
+      res.status(201).json(newCategory);
+    } catch (error) {
+      next(error);
+    }
   }
 );
+
 app.delete(
   "/api/categories/:id",
   authenticateToken,
   authorizeAdmin,
   async (req, res, next) => {
-    /* ... */
+    try {
+      const { id } = req.params;
+      const categoryIndex = db.data.categories.findIndex((c) => c.id === id);
+      if (categoryIndex === -1)
+        return res.status(404).json({ message: "找不到該分類" });
+
+      db.data.categories.splice(categoryIndex, 1);
+      await db.write();
+      res.status(200).json({ message: "分類刪除成功" });
+    } catch (error) {
+      next(error);
+    }
   }
 );
+
 // --- 路由結束 ---
 
 // ================================================================
