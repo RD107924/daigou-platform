@@ -1,67 +1,99 @@
-// --- 購物車公用函式 ---
+// --- js/cart-helpers.js (由 cart.js 優化而來) ---
 
-// 從 localStorage 獲取購物車資料
-function getCart() {
-  const cartJson = localStorage.getItem("shoppingCart");
-  return cartJson ? JSON.parse(cartJson) : [];
-}
+const Cart = {
+  // 從 localStorage 獲取購物車資料
+  get() {
+    const cartJson = localStorage.getItem("shoppingCart");
+    return cartJson ? JSON.parse(cartJson) : [];
+  },
 
-// 將購物車資料儲存到 localStorage
-function saveCart(cart) {
-  localStorage.setItem("shoppingCart", JSON.stringify(cart));
-}
+  // 將購物車資料儲存到 localStorage
+  save(cart) {
+    localStorage.setItem("shoppingCart", JSON.stringify(cart));
+  },
 
-// 加入商品到購物車
-function addToCart(productId, productTitle, productPrice, serviceFee) {
-  const cart = getCart();
-  const existingItem = cart.find((item) => item.id === productId);
+  /**
+   * 加入商品到購物車
+   * @param {object} itemToAdd - 要加入的商品物件，必須包含 id, title, price, serviceFee
+   */
+  add(itemToAdd) {
+    const cart = this.get();
+    const existingItem = cart.find((item) => item.id === itemToAdd.id);
 
-  if (existingItem) {
-    // 如果有，數量 +1
-    existingItem.quantity += 1;
-  } else {
-    // 如果沒有，新增一筆商品
-    cart.push({
-      id: productId,
-      title: productTitle,
-      price: productPrice,
-      serviceFee: serviceFee || 0, // 新增服務費欄位
-      quantity: 1,
-      notes: "", // 新增備註欄位
-    });
-  }
-  saveCart(cart);
-}
-
-// 更新購物車中商品的數量
-function updateCartQuantity(productId, quantity) {
-  const cart = getCart();
-  const item = cart.find((item) => item.id === productId);
-  if (item) {
-    if (quantity > 0) {
-      item.quantity = quantity;
+    if (existingItem) {
+      existingItem.quantity += 1;
     } else {
-      // 如果數量小於等於0，則移除該商品
-      removeFromCart(productId);
-      return; // 直接返回，因為 saveCart 會在 removeFromCart 中被呼叫
+      cart.push({
+        id: itemToAdd.id,
+        title: itemToAdd.title,
+        price: itemToAdd.price,
+        serviceFee: itemToAdd.serviceFee || 0,
+        quantity: 1,
+        notes: "", // 預設空的備註欄位
+      });
     }
-  }
-  saveCart(cart);
-}
+    this.save(cart);
+  },
 
-// 更新購物車中商品的備註
-function updateCartNotes(productId, notes) {
-  const cart = getCart();
-  const item = cart.find((item) => item.id === productId);
-  if (item) {
-    item.notes = notes;
-  }
-  saveCart(cart);
-}
+  /**
+   * 更新購物車中商品的數量
+   * @param {string} productId - 商品 ID
+   * @param {number} newQuantity - 新的商品數量
+   */
+  updateQuantity(productId, newQuantity) {
+    let cart = this.get();
+    const item = cart.find((item) => item.id === productId);
 
-// 從購物車移除商品
-function removeFromCart(productId) {
-  let cart = getCart();
-  cart = cart.filter((item) => item.id !== productId);
-  saveCart(cart);
-}
+    if (item) {
+      if (newQuantity > 0) {
+        item.quantity = newQuantity;
+        this.save(cart);
+      } else {
+        // 如果數量小於等於0，則移除該商品
+        this.remove(productId);
+      }
+    }
+  },
+
+  /**
+   * 更新購物車中商品的備註
+   * @param {string} productId - 商品 ID
+   * @param {string} notes - 新的備註內容
+   */
+  updateNotes(productId, notes) {
+    const cart = this.get();
+    const item = cart.find((item) => item.id === productId);
+    if (item) {
+      item.notes = notes;
+      this.save(cart);
+    }
+  },
+
+  /**
+   * 從購物車移除商品
+   * @param {string} productId - 商品 ID
+   */
+  remove(productId) {
+    let cart = this.get();
+    cart = cart.filter((item) => item.id !== productId);
+    this.save(cart);
+  },
+
+  /**
+   * 更新頁面上顯示購物車數量的 UI 元素
+   */
+  updateCountUI() {
+    const cartCountEl = document.getElementById("cart-count");
+    if (cartCountEl) {
+      const cart = this.get();
+      // 計算總數量而非項目種類數
+      const totalQuantity = cart.reduce(
+        (total, item) => total + item.quantity,
+        0
+      );
+      cartCountEl.textContent = totalQuantity;
+      // 如果數量大於 0，顯示角標
+      cartCountEl.style.display = totalQuantity > 0 ? "block" : "none";
+    }
+  },
+};

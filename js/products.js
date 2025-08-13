@@ -1,111 +1,276 @@
+// --- js/products.js (最終優化完整版) ---
+
 document.addEventListener("DOMContentLoaded", () => {
-  const productGrid = document.querySelector(".product-grid");
-  const categoryFiltersContainer = document.getElementById("category-filters");
-  const API_BASE_URL = "https://daigou-platform-api.onrender.com"; // 請確認是您的後端網址
+  const App = {
+    // ---- 設定與狀態管理 ----
+    config: {
+      // 請確認這是您後端的正確網址
+      apiBaseUrl: "https://daigou-platform-api.onrender.com",
+    },
+    state: {
+      allProducts: [], // 儲存所有從後端獲取的商品
+      currentFilter: "all",
+    },
 
-  let allProducts = []; // 用來儲存所有從後端獲取的商品
+    // ---- DOM 元素集中管理 ----
+    elements: {
+      mainContentView: document.getElementById("main-content-view"),
+      productGrid: document.querySelector(".product-grid"),
+      categoryFilters: document.getElementById("category-filters"),
+      productDetailContainer: document.getElementById(
+        "product-detail-container"
+      ),
+    },
 
-  // 函式：渲染商品卡片到頁面上
-  function renderProducts(productsToRender) {
-    productGrid.innerHTML = ""; // 清空現有商品
-    if (productsToRender.length === 0) {
-      productGrid.innerHTML = "<p>這個分類下沒有商品。</p>";
-      return;
-    }
-    productsToRender.forEach((product) => {
-      const serviceFee = product.serviceFee || 0;
-      const cardHTML = `
-            <div class="product-card">
-                <img src="${product.imageUrl}" alt="${product.title}">
-                <div class="product-info">
-                    <div>
-                        <span class="product-category">${product.category}</span>
-                        <h3 class="product-title">${product.title}</h3>
-                    </div>
-                    <div>
-                        <p class="product-price">$${product.price} TWD</p>
-                        <p class="service-fee">代購服務費: $${serviceFee}</p>
-                    </div>
-                </div>
-                <div class="product-actions">
-                    <button class="btn-primary btn-add-to-cart" 
-                        data-id="${product.id}" 
-                        data-title="${product.title}" 
-                        data-price="${product.price}"
-                        data-servicefee="${serviceFee}">
-                        加入購物車
-                    </button>
-                </div>
-            </div>
-            `;
-      productGrid.insertAdjacentHTML("beforeend", cardHTML);
-    });
-  }
+    // ---- 初始化函式 ----
+    async init() {
+      this.showLoading();
+      this.bindEvents();
 
-  // 函式：根據商品資料，產生分類標籤
-  function renderCategories(products) {
-    const categories = [...new Set(products.map((p) => p.category))];
-
-    categoryFiltersContainer.innerHTML = "";
-
-    const allButton = `<button class="filter-btn active" data-category="all">全部</button>`;
-    categoryFiltersContainer.insertAdjacentHTML("beforeend", allButton);
-
-    categories.forEach((category) => {
-      const categoryButton = `<button class="filter-btn" data-category="${category}">${category}</button>`;
-      categoryFiltersContainer.insertAdjacentHTML("beforeend", categoryButton);
-    });
-  }
-
-  // 主函式：從 API 獲取資料並初始化頁面
-  async function initializePage() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/products`);
-      if (!response.ok) throw new Error("無法獲取商品列表");
-      allProducts = await response.json();
-
-      renderProducts(allProducts);
-      renderCategories(allProducts);
-    } catch (error) {
-      console.error("無法獲取商品資料:", error);
-      productGrid.innerHTML = "<p>無法載入商品，請稍後再試。</p>";
-    }
-  }
-
-  // 事件監聽：處理分類標籤的點擊
-  categoryFiltersContainer.addEventListener("click", (event) => {
-    if (event.target.tagName === "BUTTON") {
-      document
-        .querySelectorAll(".filter-btn")
-        .forEach((btn) => btn.classList.remove("active"));
-      event.target.classList.add("active");
-
-      const selectedCategory = event.target.dataset.category;
-
-      if (selectedCategory === "all") {
-        renderProducts(allProducts);
-      } else {
-        const filteredProducts = allProducts.filter(
-          (p) => p.category === selectedCategory
-        );
-        renderProducts(filteredProducts);
+      try {
+        await this.fetchProducts();
+        this.renderCategoryFilters();
+        this.handleRouting();
+      } catch (error) {
+        this.showError(error.message);
       }
-    }
-  });
+    },
 
-  // 事件監聽：處理加入購物車的點擊
-  productGrid.addEventListener("click", (event) => {
-    if (event.target.classList.contains("btn-add-to-cart")) {
-      const button = event.target;
-      const productId = button.dataset.id;
-      const productTitle = button.dataset.title;
-      const productPrice = parseInt(button.dataset.price, 10);
-      const serviceFee = parseInt(button.dataset.servicefee, 10);
-      addToCart(productId, productTitle, productPrice, serviceFee);
-      alert(`「${productTitle}」已加入購物車！`);
-    }
-  });
+    // ---- 事件綁定 ----
+    bindEvents() {
+      document.body.addEventListener(
+        "click",
+        this.handleGlobalClick.bind(this)
+      );
+      window.addEventListener("popstate", this.handleRouting.bind(this));
+    },
 
-  // 啟動頁面
-  initializePage();
+    // ---- 資料處理 ----
+    async fetchProducts() {
+      const response = await fetch(`${this.config.apiBaseUrl}/api/products`);
+      if (!response.ok) {
+        throw new Error("無法從伺服器獲取商品列表，請稍後再試。");
+      }
+      this.state.allProducts = await response.json();
+    },
+
+    // ---- 渲染與畫面控制 ----
+    renderProductList(productsToRender) {
+      this.elements.productGrid.innerHTML = "";
+
+      const productHtml = productsToRender
+        .map((product) => {
+          const serviceFee = product.serviceFee || 0;
+          return `
+                    <a href="?product_id=${product.id}" class="product-card" data-id="${product.id}">
+                        <img src="${product.imageUrl}" alt="${product.title}">
+                        <div class="product-info">
+                            <div>
+                                <span class="product-category">${product.category}</span>
+                                <h3 class="product-title">${product.title}</h3>
+                            </div>
+                            <div>
+                                <p class="product-price">$${product.price} TWD</p>
+                                <p class="service-fee">代購服務費: $${serviceFee}</p>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-add-to-cart" data-id="${product.id}">加入購物車</button>
+                        </div>
+                    </a>`;
+        })
+        .join("");
+
+      this.elements.productGrid.innerHTML =
+        productHtml || "<p>這個分類下沒有商品。</p>";
+    },
+
+    renderCategoryFilters() {
+      const categories = [
+        "all",
+        ...new Set(this.state.allProducts.map((p) => p.category)),
+      ];
+      this.elements.categoryFilters.innerHTML = categories
+        .map(
+          (category) =>
+            `<button class="filter-btn ${
+              category === "all" ? "active" : ""
+            }" data-category="${category}">
+                    ${category === "all" ? "全部" : category}
+                </button>`
+        )
+        .join("");
+    },
+
+    renderSingleProduct(product) {
+      if (!product) {
+        this.elements.productDetailContainer.innerHTML = `
+                    <div class="product-detail-view">
+                        <h2>抱歉，找不到您要的商品</h2>
+                        <a href="index.html" class="back-to-list-btn">← 返回商品總覽</a>
+                    </div>`;
+        return;
+      }
+      const serviceFee = product.serviceFee || 0;
+      this.elements.productDetailContainer.innerHTML = `
+                <div class="product-detail-view">
+                    <a href="index.html" class="back-to-list-btn">← 返回商品總覽</a>
+                    <img src="${product.imageUrl}" alt="${product.title}">
+                    <div class="product-detail-info">
+                        <h1>${product.title}</h1>
+                        <p class="description">這裡可以放更詳細的商品描述，如果您的 API 有提供的話。</p>
+                        <p class="service-fee-detail">代購服務費: $${serviceFee}</p>
+                        <div class="price-detail">NT$ ${product.price}</div>
+                        <div class="product-detail-actions">
+                            <button class="btn-primary btn-add-to-cart" data-id="${product.id}">加入購物車</button>
+                            <button class="btn-secondary btn-share" data-id="${product.id}">分享商品</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+    },
+
+    showView(viewName, productId = null) {
+      if (viewName === "detail") {
+        this.elements.mainContentView.style.display = "none";
+        this.elements.productDetailContainer.style.display = "block";
+        const product = this.state.allProducts.find((p) => p.id === productId);
+        this.renderSingleProduct(product);
+      } else {
+        this.elements.mainContentView.style.display = "block";
+        this.elements.productDetailContainer.style.display = "none";
+        this.renderProductList(this.state.allProducts);
+      }
+    },
+
+    showLoading() {
+      this.elements.productGrid.innerHTML =
+        '<p class="loading-text">商品載入中，請稍候...</p>';
+    },
+
+    showError(message) {
+      this.elements.productGrid.innerHTML = `<p class="error-text">${message}</p>`;
+    },
+
+    // ---- 路由與事件處理 ----
+    handleRouting() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const productIdFromUrl = urlParams.get("product_id");
+
+      if (productIdFromUrl) {
+        this.showView("detail", productIdFromUrl);
+      } else {
+        this.showView("list");
+      }
+      // 確保無論在哪個頁面，購物車數量都是最新的
+      // Cart 物件來自 cart.js
+      if (typeof Cart !== "undefined") {
+        Cart.updateCountUI();
+      }
+    },
+
+    async handleGlobalClick(event) {
+      const target = event.target;
+      const productCard = target.closest(".product-card");
+      const filterButton = target.closest(".filter-btn");
+      const backButton = target.closest(".back-to-list-btn");
+
+      // 處理「加入購物車」按鈕點擊
+      if (target.classList.contains("btn-add-to-cart")) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const productId = target.dataset.id;
+        const productToAdd = this.state.allProducts.find(
+          (p) => p.id === productId
+        );
+
+        if (productToAdd && typeof Cart !== "undefined") {
+          Cart.add(productToAdd);
+          Cart.updateCountUI();
+          alert(`「${productToAdd.title}」已加入購物車！`);
+        }
+        return;
+      }
+
+      // 處理「分享商品」按鈕點擊
+      if (target.classList.contains("btn-share")) {
+        event.preventDefault();
+        const productId = target.dataset.id;
+        const productToShare = this.state.allProducts.find(
+          (p) => p.id === productId
+        );
+
+        if (productToShare) {
+          const shareData = {
+            title: `分享商品：${productToShare.title}`,
+            text: `我在「代採購大平台」發現一個好東西，分享給你：${productToShare.title}`,
+            url: window.location.href,
+          };
+
+          if (navigator.share) {
+            try {
+              await navigator.share(shareData);
+            } catch (err) {
+              console.log("使用者取消了分享。");
+            }
+          } else {
+            navigator.clipboard
+              .writeText(shareData.url)
+              .then(() => {
+                target.innerText = "連結已複製!";
+                setTimeout(() => {
+                  target.innerText = "分享商品";
+                }, 2000);
+              })
+              .catch((err) => {
+                console.error("複製失敗: ", err);
+                alert("抱歉，複製連結失敗。");
+              });
+          }
+        }
+        return;
+      }
+
+      // 處理商品卡片點擊 (進入詳細頁)
+      if (productCard) {
+        event.preventDefault();
+        const productId = productCard.dataset.id;
+        history.pushState({ productId }, "", `?product_id=${productId}`);
+        this.showView("detail", productId);
+        window.scrollTo(0, 0); // 切換畫面後，捲動到頁面頂端
+        return;
+      }
+
+      // 處理「返回」按鈕點擊
+      if (backButton) {
+        event.preventDefault();
+        history.pushState({}, "", window.location.pathname);
+        this.showView("list");
+        window.scrollTo(0, 0);
+        return;
+      }
+
+      // 處理分類篩選按鈕點擊
+      if (filterButton) {
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        filterButton.classList.add("active");
+
+        const category = filterButton.dataset.category;
+        this.state.currentFilter = category;
+
+        const productsToShow =
+          category === "all"
+            ? this.state.allProducts
+            : this.state.allProducts.filter((p) => p.category === category);
+
+        this.renderProductList(productsToShow);
+      }
+    },
+  };
+
+  // ---- 啟動應用程式 ----
+  App.init();
 });
