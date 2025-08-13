@@ -43,7 +43,18 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // --- 服務與啟動腳本 (Services & Startup Scripts) ---
 // ================================================================
 
+// 在 server.js 中
 async function sendEmailNotification({ subject, text, html }) {
+  // ▼▼▼ 請在這裡加入這兩行測試用的 console.log ▼▼▼
+  console.log("--- 準備寄送郵件：進入 sendEmailNotification 函式 ---");
+  console.log(
+    "偵測到的 SENDGRID_API_KEY:",
+    process.env.SENDGRID_API_KEY
+      ? `「有值，開頭為: ${process.env.SENDGRID_API_KEY.substring(0, 5)}...」`
+      : "「無值或是空的」"
+  );
+  // ▲▲▲ 加入結束 ▲▲▲
+
   if (!process.env.SENDGRID_API_KEY) {
     console.log("SENDGRID_API_KEY 未設定，跳過寄送郵件。");
     return;
