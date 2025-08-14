@@ -634,7 +634,7 @@ img {
   color: var(--primary-color);
 }
 
-/* --- Modal 彈出視窗 --- */
+/* --- Modal 彈出視窗 (優化版，支援滾動) --- */
 .modal {
   display: none;
   position: fixed;
@@ -645,11 +645,18 @@ img {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(5px);
+
+  /* 優化：改用 Flexbox 來置中，並允許垂直滾動 */
+  display: flex;
+  align-items: flex-start; /* 從頂部對齊，而不是置中 */
+  justify-content: center;
+  overflow-y: auto; /* 核心：當內容超長時，允許整個視窗滾動 */
+  padding: var(--spacing-5) 0; /* 給上下留出滾動的呼吸空間 */
 }
+
 .modal-content {
   background-color: var(--white-color);
-  margin: 10% auto;
-  padding: var(--spacing-5);
+  margin: 0 var(--spacing-3); /* 取代舊的 margin: 10% auto，移除頂部百分比邊距 */
   width: 90%;
   max-width: 600px;
   border-radius: var(--border-radius);
@@ -657,6 +664,7 @@ img {
   box-shadow: var(--shadow-lg);
   animation: slide-down 0.3s ease-out;
 }
+
 @keyframes slide-down {
   from {
     transform: translateY(-30px);
@@ -667,6 +675,7 @@ img {
     opacity: 1;
   }
 }
+
 .modal-close-btn {
   color: var(--grey-500);
   position: absolute;
@@ -675,7 +684,9 @@ img {
   font-size: 2rem;
   font-weight: bold;
   cursor: pointer;
+  transition: var(--transition-fast);
 }
+
 .modal-close-btn:hover {
   color: var(--grey-900);
 }
