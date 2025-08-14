@@ -1,4 +1,4 @@
-/* --- 愛馬仕橘主題 V5 - 美學升級最終完整版 --- */
+/* --- 愛馬仕橘主題 V6 - 行動裝置最終修正版 --- */
 
 /* 1. 引入 Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap");
@@ -229,7 +229,7 @@ img {
 /* --- 頁首 / 導覽列 --- */
 .site-header {
   background-color: var(--header-bg);
-  padding: var(--spacing-3) 0;
+  padding: var(--spacing-2) 0;
   box-shadow: var(--shadow-md);
   position: sticky;
   top: 0;
@@ -242,6 +242,24 @@ img {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 50px;
+}
+.desktop-nav {
+  display: flex;
+  justify-content: center;
+  flex-grow: 1;
+  gap: var(--spacing-4);
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+.hamburger-btn {
+  display: none;
+}
+.mobile-menu {
+  display: none;
 }
 .site-logo {
   height: 45px;
@@ -249,11 +267,6 @@ img {
 }
 .site-logo:hover {
   transform: scale(1.05);
-}
-.main-nav {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-4);
 }
 .main-nav a {
   color: var(--header-text-color);
@@ -693,7 +706,7 @@ img {
 }
 
 /* ================================================================ */
-/* --- 手機版響應式設計 (Responsive) --- */
+/* --- 手機版響應式設計 (Responsive) - 核心修正區 --- */
 /* ================================================================ */
 @media (max-width: 992px) {
   .product-detail-view {
@@ -719,60 +732,200 @@ img {
     margin-bottom: 0;
   }
   h1 {
-    font-size: 2.25rem;
+    font-size: 2rem;
   }
   h2 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
   }
+
+  /* --- 手機版頁首 & 漢堡選單 (關鍵修正) --- */
   .header-content {
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
     padding: 0 var(--spacing-3);
   }
-  .main-nav a:not(.cart-nav-link) {
-    display: none;
+  .desktop-nav {
+    display: none !important; /* 強制隱藏電腦版導覽列 */
   }
-  .main-nav a.active {
-    display: inline-block;
+
+  .hamburger-btn {
+    display: flex; /* 在手機上顯示漢堡按鈕 */
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1051; /* 確保在最上層 */
   }
-  .main-nav a.cart-nav-link {
+  .hamburger-btn span {
+    width: 100%;
+    height: 3px;
+    background: var(--header-text-color);
+    border-radius: 10px;
+    transition: all 0.3s linear;
+    position: relative;
+    transform-origin: 1px;
+  }
+  .hamburger-btn.is-active span:nth-child(1) {
+    transform: rotate(45deg);
+  }
+  .hamburger-btn.is-active span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  .hamburger-btn.is-active span:nth-child(3) {
+    transform: rotate(-45deg);
+  }
+
+  .mobile-menu {
+    display: flex; /* 讓選單存在於文檔流中 */
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(253, 252, 249, 0.95); /* 使用帶透明度的背景色 */
+    backdrop-filter: blur(8px); /* 模糊背景 (毛玻璃效果) */
+    padding-top: 100px; /* 留出頁首空間 */
+    transform: translateX(100%); /* 預設隱藏在畫面右側 */
+    transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+    z-index: 1050; /* 在頁首下方 */
+    visibility: hidden; /* 預設完全不可見 */
+    text-align: center;
+  }
+  .mobile-menu.is-active {
+    transform: translateX(0); /* 滑入畫面 */
+    visibility: visible; /* 變得可見 */
+  }
+  .mobile-menu a {
+    padding: var(--spacing-3) var(--spacing-5);
+    font-size: 1.5rem;
+    font-family: var(--font-secondary);
+    color: var(--header-text-color);
+  }
+  .mobile-menu hr {
+    width: 80%;
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: var(--spacing-3) auto;
+  }
+
+  /* --- 商品列表：雙欄佈局 --- */
+  .product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 雙欄 */
+    gap: var(--spacing-3);
+    padding: 0 var(--spacing-3); /* 讓列表左右有邊距 */
+  }
+  .product-card {
+    border-radius: var(--border-radius-sm);
+  }
+  .product-card img {
+    height: 160px; /* 調整圖片高度 */
+  }
+  .product-info {
+    padding: var(--spacing-2);
+  }
+  .product-title {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: var(--spacing-1);
+    min-height: 38px;
+  }
+  .product-price {
+    font-size: 1.1rem;
+  }
+  .product-actions {
+    padding: 0 var(--spacing-2) var(--spacing-2);
+  }
+  .product-actions .btn-primary {
+    padding: var(--spacing-2);
+    font-size: 0.9rem;
+  }
+
+  /* --- 結帳頁面美化 --- */
+  .checkout-header {
+    text-align: center;
+    padding-top: var(--spacing-4);
+  }
+  .checkout-header a {
+    font-size: 0.9rem;
+  }
+  .checkout-section h3 {
+    text-align: center;
+    border-bottom: none;
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-3);
+  }
+  .cart-table tr {
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+  }
+  .cart-table td {
+    padding: var(--spacing-2) 0;
+  }
+  .cart-summary {
+    text-align: left;
+    padding: var(--spacing-3);
+    background-color: var(--grey-100);
+    border-radius: var(--border-radius-sm);
+  }
+  .cart-summary div {
     display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--border-color);
   }
+  .cart-summary div:last-child {
+    border-bottom: none;
+  }
+  .payment-details {
+    text-align: center;
+    background-color: var(--grey-100);
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius-sm);
+  }
+  .payment-details p {
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+  .final-confirmation {
+    border-radius: var(--border-radius-sm);
+    text-align: center;
+  }
+
   .admin-form .form-grid {
     grid-template-columns: 1fr;
   }
-
-  .product-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .cart-table thead,
-  .admin-table thead {
+  .admin-table thead,
+  .cart-table thead {
     display: none;
   }
-  .cart-table tr,
-  .admin-table tr {
+  .admin-table tr,
+  .cart-table tr {
     display: block;
     margin-bottom: var(--spacing-4);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: var(--spacing-3);
   }
-  .cart-table td,
-  .admin-table td {
+  .admin-table td,
+  .cart-table td {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-3) 0;
     border-bottom: 1px dashed var(--border-color);
   }
-  .cart-table td:last-child,
-  .admin-table td:last-child {
+  .admin-table td:last-child,
+  .cart-table td:last-child {
     border-bottom: none;
   }
-  .cart-table td::before,
-  .admin-table td::before {
+  .admin-table td::before,
+  .cart-table td::before {
     content: attr(data-label);
     font-weight: bold;
   }
