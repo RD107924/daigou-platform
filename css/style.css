@@ -281,7 +281,8 @@ img {
 .cart-nav-link:hover .cart-icon {
   color: var(--primary-color);
 }
-.cart-count-badge {
+.cart-count-badge,
+.notification-badge {
   position: absolute;
   top: -5px;
   right: -10px;
@@ -703,6 +704,7 @@ img {
 @media (max-width: 768px) {
   body {
     font-size: 15px;
+    -webkit-text-size-adjust: 100%;
   }
   .container {
     width: 100%;

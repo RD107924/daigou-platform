@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant-TW">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>訂單結帳 - 代採購大平台</title>
+    <meta
+      name="description"
+      content="確認您的購物車明細，填寫客戶資訊並完成訂單。"
+    />
     <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
     <link rel="stylesheet" href="css/style.css" />
   </head>
@@ -17,10 +21,14 @@
             class="site-logo"
           />
         </a>
-        <nav class="main-nav">
-          <a href="index.html">批發貨源</a>
-          <a href="request.html">代採購</a>
-          <a href="lookup.html">訂單查詢</a>
+
+        <nav class="main-nav desktop-nav">
+          <a href="index.html" class="nav-link-item">批發貨源</a>
+          <a href="request.html" class="nav-link-item">代採購</a>
+          <a href="lookup.html" class="nav-link-item">訂單查詢</a>
+        </nav>
+
+        <div class="header-actions">
           <a
             href="checkout.html"
             class="cart-nav-link active"
@@ -42,7 +50,24 @@
               >0</span
             >
           </a>
-        </nav>
+          <button
+            id="hamburger-btn"
+            class="hamburger-btn"
+            aria-label="開啟選單"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+      <div id="mobile-menu" class="mobile-menu">
+        <a href="index.html">批發貨源</a>
+        <a href="request.html">代採購</a>
+        <a href="lookup.html">訂單查詢</a>
+        <hr />
+        <a href="profile.html">會員中心</a>
+        <a href="login.html">登入</a>
       </div>
     </header>
 
@@ -170,7 +195,8 @@
       </div>
     </footer>
 
-    <script src="js/cart.js"></script>
-    <script src="js/checkout.js"></script>
+    <script src="js/cart.js" defer></script>
+    <script src="js/admin-main.js" defer></script>
+    <script src="js/checkout.js" defer></script>
   </body>
 </html>
