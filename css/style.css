@@ -381,7 +381,7 @@ img {
 /* 針對商品列表內的圖片與影片進行優化 */
 .product-media-container {
   width: 100%;
-  padding-bottom: 100%; /* 設置為正方形容器 (1:1 比例) */
+  padding-bottom: 177.77%; /* 9:16 比例，適合手機短影音 */
   position: relative;
   overflow: hidden;
   background-color: #f0f0f0; /* 在載入時顯示一個背景色 */
@@ -398,10 +398,10 @@ img {
   object-fit: cover; /* 保持圖片/影片比例並裁切填滿容器 */
 }
 
-/* 在電腦版上，調整為較寬的比例 */
+/* 在電腦版上，調整為更寬的 4:3 比例 */
 @media (min-width: 768px) {
   .product-media-container {
-    padding-bottom: 75%; /* 設置為 4:3 比例 */
+    padding-bottom: 75%; /* 4:3 比例 */
   }
 }
 /* 移除舊的 .product-card img 樣式 */
@@ -906,7 +906,7 @@ img {
   }
   /* 針對手機版，調整影片和圖片容器的比例 */
   .product-media-container {
-    padding-bottom: 150%; /* 設置為 2:3 比例，更適合手機短影音 */
+    padding-bottom: 177.77%; /* 設置為 9:16 比例，更適合手機短影音 */
   }
 
   /* --- 結帳頁面美化 --- */
