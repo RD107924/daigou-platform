@@ -377,15 +377,44 @@ img {
   transform: translateY(-8px);
   box-shadow: var(--shadow-lg);
 }
+
+/* 針對商品列表內的圖片與影片進行優化 */
+.product-media-container {
+  width: 100%;
+  padding-bottom: 100%; /* 設置為正方形容器 (1:1 比例) */
+  position: relative;
+  overflow: hidden;
+  background-color: #f0f0f0; /* 在載入時顯示一個背景色 */
+}
+
+/* 確保媒體內容填滿容器並保持其縱橫比 */
+.product-media-container .product-image,
+.product-media-container .tiktok-embed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 保持圖片/影片比例並裁切填滿容器 */
+}
+
+/* 在電腦版上，調整為較寬的比例 */
+@media (min-width: 768px) {
+  .product-media-container {
+    padding-bottom: 75%; /* 設置為 4:3 比例 */
+  }
+}
+/* 移除舊的 .product-card img 樣式 */
 .product-card img {
   width: 100%;
-  height: 250px;
+  height: auto; /* 移除固定高度，交由容器控制 */
   object-fit: cover;
   transition: transform 0.4s ease;
 }
 .product-card:hover img {
   transform: scale(1.05);
 }
+
 .product-info {
   padding: var(--spacing-4);
   flex-grow: 1;
@@ -428,6 +457,26 @@ img {
   gap: var(--spacing-6);
   align-items: start;
 }
+/* 新增的詳細頁媒體容器 */
+.product-media-container-lg {
+  width: 100%;
+  padding-bottom: 56.25%; /* 設置為 16:9 比例，適合大多數影片 */
+  position: relative;
+  overflow: hidden;
+  background-color: #f0f0f0;
+}
+/* 確保詳細頁的影片或圖片完整顯示，不裁切 */
+.product-media-container-lg .tiktok-embed-lg,
+.product-media-container-lg img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 完整顯示圖片/影片 */
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+}
 .product-detail-view img {
   border-radius: var(--border-radius);
   object-fit: cover;
@@ -451,6 +500,12 @@ img {
   font-weight: 600;
   font-family: var(--font-secondary);
   color: var(--primary-color);
+}
+.service-fee-detail {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  margin-top: -5px;
+  margin-bottom: var(--spacing-3);
 }
 .product-detail-actions {
   display: flex;
@@ -826,8 +881,9 @@ img {
   .product-card {
     border-radius: var(--border-radius-sm);
   }
+  /* 移除舊的 product-card img 樣式 */
   .product-card img {
-    height: 160px; /* 調整圖片高度 */
+    height: auto;
   }
   .product-info {
     padding: var(--spacing-2);
@@ -847,6 +903,10 @@ img {
   .product-actions .btn-primary {
     padding: var(--spacing-2);
     font-size: 0.9rem;
+  }
+  /* 針對手機版，調整影片和圖片容器的比例 */
+  .product-media-container {
+    padding-bottom: 150%; /* 設置為 2:3 比例，更適合手機短影音 */
   }
 
   /* --- 結帳頁面美化 --- */
