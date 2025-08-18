@@ -54,6 +54,33 @@ document.addEventListener("DOMContentLoaded", () => {
       this.state.allProducts = await response.json();
     },
 
+    /**
+     * 判斷連結是否為 TikTok 影片
+     * @param {string} url - 商品圖片或影片的 URL
+     * @returns {boolean} - 如果是 TikTok 影片連結，則返回 true
+     */
+    isTikTokVideo(url) {
+      // 檢查網址是否包含 tiktok.com
+      return url && url.includes("tiktok.com");
+    },
+
+    /**
+     * 轉換 TikTok 連結為嵌入式 URL
+     * @param {string} url - TikTok 影片的分享連結
+     * @returns {string} - 嵌入式影片的 URL
+     */
+    getTikTokEmbedUrl(url) {
+      try {
+        const urlObj = new URL(url);
+        const videoId = urlObj.pathname.split("/").pop();
+        // 這是 TikTok 的官方嵌入 URL 格式
+        return `https://www.tiktok.com/embed/v2/${videoId}`;
+      } catch (e) {
+        console.error("無效的 TikTok 影片網址:", url);
+        return "";
+      }
+    },
+
     // ---- 渲染與畫面控制 ----
     renderProductList(productsToRender) {
       this.elements.productGrid.innerHTML = "";
@@ -61,23 +88,42 @@ document.addEventListener("DOMContentLoaded", () => {
       const productHtml = productsToRender
         .map((product) => {
           const serviceFee = product.serviceFee || 0;
+          const isVideo = this.isTikTokVideo(product.imageUrl);
+
           return `
-                    <a href="?product_id=${product.id}" class="product-card" data-id="${product.id}">
-                        <img src="${product.imageUrl}" alt="${product.title}">
-                        <div class="product-info">
-                            <div>
-                                <span class="product-category">${product.category}</span>
-                                <h3 class="product-title">${product.title}</h3>
-                            </div>
-                            <div>
-                                <p class="product-price">$${product.price} TWD</p>
-                                <p class="service-fee">代購服務費: $${serviceFee}</p>
-                            </div>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-primary btn-add-to-cart" data-id="${product.id}">加入購物車</button>
-                        </div>
-                    </a>`;
+            <a href="?product_id=${product.id}" class="product-card" data-id="${
+            product.id
+          }">
+              <div class="product-media-container">
+                ${
+                  isVideo
+                    ? `
+                    <iframe
+                      src="${this.getTikTokEmbedUrl(product.imageUrl)}"
+                      frameborder="0"
+                      allowfullscreen
+                      class="tiktok-embed"
+                    ></iframe>
+                  `
+                    : `<img src="${product.imageUrl}" alt="${product.title}" class="product-image">`
+                }
+              </div>
+              <div class="product-info">
+                <div>
+                  <span class="product-category">${product.category}</span>
+                  <h3 class="product-title">${product.title}</h3>
+                </div>
+                <div>
+                  <p class="product-price">$${product.price} TWD</p>
+                  <p class="service-fee">代購服務費: $${serviceFee}</p>
+                </div>
+              </div>
+              <div class="product-actions">
+                <button class="btn-primary btn-add-to-cart" data-id="${
+                  product.id
+                }">加入購物車</button>
+              </div>
+            </a>`;
         })
         .join("");
 
@@ -105,29 +151,51 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSingleProduct(product) {
       if (!product) {
         this.elements.productDetailContainer.innerHTML = `
-                    <div class="product-detail-view">
-                        <h2>抱歉，找不到您要的商品</h2>
-                        <a href="index.html" class="back-to-list-btn">← 返回商品總覽</a>
-                    </div>`;
+            <div class="product-detail-view">
+              <h2>抱歉，找不到您要的商品</h2>
+              <a href="index.html" class="back-to-list-btn">← 返回商品總覽</a>
+            </div>`;
         return;
       }
+
       const serviceFee = product.serviceFee || 0;
+      const isVideo = this.isTikTokVideo(product.imageUrl);
+
       this.elements.productDetailContainer.innerHTML = `
-                <div class="product-detail-view">
-                    <a href="index.html" class="back-to-list-btn">← 返回商品總覽</a>
-                    <img src="${product.imageUrl}" alt="${product.title}">
-                    <div class="product-detail-info">
-                        <h1>${product.title}</h1>
-                        <p class="description">這裡可以放更詳細的商品描述，如果您的 API 有提供的話。</p>
-                        <p class="service-fee-detail">代購服務費: $${serviceFee}</p>
-                        <div class="price-detail">NT$ ${product.price}</div>
-                        <div class="product-detail-actions">
-                            <button class="btn-primary btn-add-to-cart" data-id="${product.id}">加入購物車</button>
-                            <button class="btn-secondary btn-share" data-id="${product.id}">分享商品</button>
-                        </div>
-                    </div>
-                </div>
-            `;
+        <div class="product-detail-view">
+          <a href="index.html" class="back-to-list-btn">← 返回商品總覽</a>
+          <div class="product-media-container-lg">
+            ${
+              isVideo
+                ? `
+                <iframe
+                  src="${this.getTikTokEmbedUrl(product.imageUrl)}"
+                  frameborder="0"
+                  allowfullscreen
+                  class="tiktok-embed-lg"
+                ></iframe>
+              `
+                : `<img src="${product.imageUrl}" alt="${product.title}">`
+            }
+          </div>
+          <div class="product-detail-info">
+            <h1>${product.title}</h1>
+            <p class="description">
+              ${product.longDescription || "此商品沒有詳細描述。"}
+            </p>
+            <p class="service-fee-detail">代購服務費: $${serviceFee}</p>
+            <div class="price-detail">NT$ ${product.price}</div>
+            <div class="product-detail-actions">
+              <button class="btn-primary btn-add-to-cart" data-id="${
+                product.id
+              }">加入購物車</button>
+              <button class="btn-secondary btn-share" data-id="${
+                product.id
+              }">分享商品</button>
+            </div>
+          </div>
+        </div>
+      `;
     },
 
     showView(viewName, productId = null) {
@@ -139,7 +207,13 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         this.elements.mainContentView.style.display = "block";
         this.elements.productDetailContainer.style.display = "none";
-        this.renderProductList(this.state.allProducts);
+        const productsToShow =
+          this.state.currentFilter === "all"
+            ? this.state.allProducts
+            : this.state.allProducts.filter(
+                (p) => p.category === this.state.currentFilter
+              );
+        this.renderProductList(productsToShow);
       }
     },
 

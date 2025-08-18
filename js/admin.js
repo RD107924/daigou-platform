@@ -107,29 +107,45 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!response.ok) throw new Error("無法獲取商品列表");
         const products = await response.json();
 
+        // 新增判斷 imageUrl 是否為影片的函式
+        const isVideo = (url) => {
+          return (
+            url &&
+            (url.includes("tiktok.com") ||
+              url.includes("youtube.com") ||
+              url.includes(".mp4") ||
+              url.includes(".mov"))
+          );
+        };
+
         this.elements.productListBody.innerHTML = products
           .map(
             (product) => `
-                    <tr data-id="${product.id}">
-                        <td data-label="分類">${product.category}</td>
-                        <td data-label="名稱">${product.title}</td>
-                        <td data-label="最終售價">$${product.price}</td>
-                        <td data-label="庫存">${product.stock ?? "N/A"}</td>
-                        <td data-label="狀態"><span class="status-${
-                          product.status
-                        }">${
+                        <tr data-id="${product.id}">
+                            <td data-label="預覽">${
+                              isVideo(product.imageUrl)
+                                ? `<video src="${product.imageUrl}" controls muted style="width: 100px; height: 100px;"></video>`
+                                : `<img src="${product.imageUrl}" alt="${product.title}" style="width: 100px; height: 100px; object-fit: cover;">`
+                            }</td>
+                            <td data-label="分類">${product.category}</td>
+                            <td data-label="名稱">${product.title}</td>
+                            <td data-label="最終售價">$${product.price}</td>
+                            <td data-label="庫存">${product.stock ?? "N/A"}</td>
+                            <td data-label="狀態"><span class="status-${
+                              product.status
+                            }">${
               product.status === "published" ? "上架中" : "草稿"
             }</span></td>
-                        <td data-label="操作">
-                            <button class="btn-small btn-secondary btn-edit" data-id="${
-                              product.id
-                            }">編輯</button>
-                            <button class="btn-small btn-danger btn-delete" data-id="${
-                              product.id
-                            }">刪除</button>
-                        </td>
-                    </tr>
-                `
+                            <td data-label="操作">
+                                <button class="btn-small btn-secondary btn-edit" data-id="${
+                                  product.id
+                                }">編輯</button>
+                                <button class="btn-small btn-danger btn-delete" data-id="${
+                                  product.id
+                                }">刪除</button>
+                            </td>
+                        </tr>
+                    `
           )
           .join("");
 
