@@ -378,10 +378,10 @@ img {
   box-shadow: var(--shadow-lg);
 }
 
-/* 針對商品列表內的圖片與影片進行優化 */
+/* 針對商品列表內的圖片與影片顯示優化 */
 .product-media-container {
   width: 100%;
-  padding-bottom: 177.77%; /* 9:16 比例，適合手機短影音 */
+  padding-bottom: 177.77%; /* 9:16 比例 (16 / 9 = 1.7777) */
   position: relative;
   overflow: hidden;
   background-color: #f0f0f0; /* 在載入時顯示一個背景色 */
@@ -398,7 +398,7 @@ img {
   object-fit: cover; /* 保持圖片/影片比例並裁切填滿容器 */
 }
 
-/* 在電腦版上，調整為更寬的 4:3 比例 */
+/* 針對電腦版，調整為更寬的 4:3 比例 */
 @media (min-width: 768px) {
   .product-media-container {
     padding-bottom: 75%; /* 4:3 比例 */
