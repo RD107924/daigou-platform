@@ -395,7 +395,8 @@ img {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 保持圖片/影片比例並裁切填滿容器 */
+  object-fit: contain; /* 修改這裡！確保影片完整顯示，不裁切 */
+  background-color: #000; /* 建議加上黑色背景，填補影片周圍的空白 */
 }
 
 /* 針對電腦版，調整為更寬的 4:3 比例 */
