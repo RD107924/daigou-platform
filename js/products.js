@@ -1,14 +1,13 @@
-// --- js/products.js (最終優化完整版) ---
+// --- js/products.js (最終修正完整版) ---
 
 document.addEventListener("DOMContentLoaded", () => {
   const App = {
     // ---- 設定與狀態管理 ----
     config: {
-      // 請確認這是您後端的正確網址
       apiBaseUrl: "https://daigou-platform-api.onrender.com",
     },
     state: {
-      allProducts: [], // 儲存所有從後端獲取的商品
+      allProducts: [],
       currentFilter: "all",
     },
 
@@ -54,26 +53,14 @@ document.addEventListener("DOMContentLoaded", () => {
       this.state.allProducts = await response.json();
     },
 
-    /**
-     * 判斷連結是否為 TikTok 影片
-     * @param {string} url - 商品圖片或影片的 URL
-     * @returns {boolean} - 如果是 TikTok 影片連結，則返回 true
-     */
     isTikTokVideo(url) {
-      // 檢查網址是否包含 tiktok.com
       return url && url.includes("tiktok.com");
     },
 
-    /**
-     * 轉換 TikTok 連結為嵌入式 URL
-     * @param {string} url - TikTok 影片的分享連結
-     * @returns {string} - 嵌入式影片的 URL
-     */
     getTikTokEmbedUrl(url) {
       try {
         const urlObj = new URL(url);
         const videoId = urlObj.pathname.split("/").pop();
-        // 這是 TikTok 的官方嵌入 URL 格式
         return `https://www.tiktok.com/embed/v2/${videoId}`;
       } catch (e) {
         console.error("無效的 TikTok 影片網址:", url);
@@ -90,10 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
           const serviceFee = product.serviceFee || 0;
           const isVideo = this.isTikTokVideo(product.imageUrl);
 
+          // 這裡的 HTML 結構是關鍵
           return `
-            <a href="?product_id=${product.id}" class="product-card" data-id="${
-            product.id
-          }">
+            <div class="product-card" data-id="${product.id}">
               <div class="product-media-container">
                 ${
                   isVideo
@@ -102,8 +88,9 @@ document.addEventListener("DOMContentLoaded", () => {
                       src="${this.getTikTokEmbedUrl(product.imageUrl)}"
                       frameborder="0"
                       allowfullscreen
-                      class="tiktok-embed"
-                    ></iframe>
+                      scrolling="no"
+                      allow="encrypted-media;">
+                    </iframe>
                   `
                     : `<img src="${product.imageUrl}" alt="${product.title}" class="product-image">`
                 }
@@ -123,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   product.id
                 }">採購同款商品到集運倉</button>
               </div>
-            </a>`;
+            </div>`;
         })
         .join("");
 
@@ -142,8 +129,8 @@ document.addEventListener("DOMContentLoaded", () => {
             `<button class="filter-btn ${
               category === "all" ? "active" : ""
             }" data-category="${category}">
-                    ${category === "all" ? "全部" : category}
-                </button>`
+                      ${category === "all" ? "全部" : category}
+                  </button>`
         )
         .join("");
     },
@@ -153,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         this.elements.productDetailContainer.innerHTML = `
             <div class="product-detail-view">
               <h2>抱歉，找不到您要的商品</h2>
-              <a href="index.html" class="back-to-list-btn">← 返回商品總覽</a>
+              <a href="#" class="back-to-list-btn">← 返回商品總覽</a>
             </div>`;
         return;
       }
@@ -163,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       this.elements.productDetailContainer.innerHTML = `
         <div class="product-detail-view">
-          <a href="index.html" class="back-to-list-btn">← 返回商品總覽</a>
+          <a href="#" class="back-to-list-btn">← 返回商品總覽</a>
           <div class="product-media-container-lg">
             ${
               isVideo
@@ -226,7 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
       this.elements.productGrid.innerHTML = `<p class="error-text">${message}</p>`;
     },
 
-    // ---- 路由與事件處理 ----
     handleRouting() {
       const urlParams = new URLSearchParams(window.location.search);
       const productIdFromUrl = urlParams.get("product_id");
@@ -236,8 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         this.showView("list");
       }
-      // 確保無論在哪個頁面，購物車數量都是最新的
-      // Cart 物件來自 cart.js
       if (typeof Cart !== "undefined") {
         Cart.updateCountUI();
       }
@@ -253,12 +237,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (target.classList.contains("btn-add-to-cart")) {
         event.preventDefault();
         event.stopPropagation();
-
         const productId = target.dataset.id;
         const productToAdd = this.state.allProducts.find(
           (p) => p.id === productId
         );
-
         if (productToAdd && typeof Cart !== "undefined") {
           Cart.add(productToAdd);
           Cart.updateCountUI();
@@ -276,10 +258,11 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (productToShare) {
+          const shareUrl = `${window.location.origin}${window.location.pathname}?product_id=${productId}`;
           const shareData = {
             title: `分享商品：${productToShare.title}`,
             text: `我在「代採購大平台」發現一個好東西，分享給你：${productToShare.title}`,
-            url: window.location.href,
+            url: shareUrl,
           };
 
           if (navigator.share) {
@@ -307,19 +290,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // 處理商品卡片點擊 (進入詳細頁)
-      if (productCard) {
+      if (
+        productCard &&
+        !target.closest(".product-actions") &&
+        !target.closest("iframe")
+      ) {
         event.preventDefault();
         const productId = productCard.dataset.id;
         history.pushState({ productId }, "", `?product_id=${productId}`);
         this.showView("detail", productId);
-        window.scrollTo(0, 0); // 切換畫面後，捲動到頁面頂端
+        window.scrollTo(0, 0);
         return;
       }
 
       // 處理「返回」按鈕點擊
       if (backButton) {
         event.preventDefault();
-        history.pushState({}, "", window.location.pathname);
+        history.pushState({}, "", window.location.pathname.split("?")[0]);
         this.showView("list");
         window.scrollTo(0, 0);
         return;
