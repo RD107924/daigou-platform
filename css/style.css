@@ -363,7 +363,7 @@ img {
 }
 
 /* ================================================================ */
-/* --- 全新商品卡片與影片容器樣式 (此區塊為修正核心) --- */
+/* --- 全新商品卡片與影片容器樣式 (桌面版優化) --- */
 /* ================================================================ */
 
 .product-card {
@@ -376,8 +376,8 @@ img {
   flex-direction: column;
   transition: var(--transition-smooth);
   color: var(--text-color);
-  text-decoration: none; /* 移除超連結底線 */
-  cursor: pointer; /* 讓整個卡片看起來可以點擊 */
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .product-card:hover {
@@ -385,35 +385,47 @@ img {
   box-shadow: var(--shadow-lg);
 }
 
-/* 媒體容器：負責創造一個有特定長寬比的空間 */
+/* 媒體容器：負責創造比例 */
 .product-media-container {
-  position: relative; /* 讓裡面的 iframe 可以絕對定位 */
+  position: relative;
   overflow: hidden;
   width: 100%;
-  padding-top: 177.77%; /* 關鍵！這創造了 9:16 的長寬比 (16 / 9 * 100) */
-  background-color: #000; /* 背景設為黑色，載入時或影片周圍不會是白色 */
+  /* 手機版預設為 9:16 比例 */
+  padding-top: 177.77%;
+  background-color: #000;
 }
 
-/* 讓 iframe 或圖片填滿整個容器 */
-.product-media-container iframe,
+/* 針對 iframe 的置中樣式 (主要用於電腦版) */
+.product-media-container iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  transform: translate(-50%, -50%);
+}
+
+/* 針對圖片的樣式 */
 .product-media-container .product-image {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  border: 0; /* 移除 iframe 預設的邊框 */
-}
-
-/* 圖片使用 object-fit: cover 填滿，更好看 */
-.product-media-container .product-image {
   object-fit: cover;
 }
 
-/* 針對電腦版，我們調整為更適合的 4:5 比例 */
+/* 電腦版優化：調整容器長寬比，讓影片更大、黑邊更少 */
 @media (min-width: 768px) {
   .product-media-container {
-    padding-top: 125%; /* 4:5 的長寬比 (5 / 4 * 100) */
+    /*
+      您可以試試看不同的數值來找到最喜歡的視覺效果：
+      150% (2:3 比例，推薦的平衡點)
+      160% (更高，更接近影片)
+      177.77% (完全填滿，但卡片會變得非常長)
+    */
+    padding-top: 150%;
   }
 }
 
@@ -422,7 +434,7 @@ img {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* 讓內容上下分佈 */
+  justify-content: space-between;
 }
 .product-category {
   font-size: var(--font-size-sm);
@@ -433,7 +445,7 @@ img {
   font-size: 1.3rem;
   font-family: var(--font-secondary);
   font-weight: 600;
-  flex-grow: 1; /* 確保標題佔用多餘空間 */
+  flex-grow: 1;
 }
 .product-price {
   font-size: 1.5rem;
@@ -460,7 +472,7 @@ img {
   gap: var(--spacing-6);
   align-items: start;
 }
-/* 新增的詳細頁媒體容器 */
+/* 詳細頁媒體容器 */
 .product-media-container-lg {
   width: 100%;
   padding-bottom: 56.25%; /* 設置為 16:9 比例，適合大多數影片 */
@@ -468,7 +480,7 @@ img {
   overflow: hidden;
   background-color: #000;
 }
-/* 確保詳細頁的影片或圖片完整顯示，不裁切 */
+/* 確保詳細頁的影片或圖片完整顯示 */
 .product-media-container-lg .tiktok-embed-lg,
 .product-media-container-lg img {
   position: absolute;
@@ -476,7 +488,7 @@ img {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain; /* 完整顯示圖片/影片 */
+  object-fit: contain;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-lg);
 }
@@ -905,8 +917,6 @@ img {
     font-size: 0.9rem;
   }
 
-  /* 手機版維持 9:16 比例，由 .product-media-container 的 padding-top 控制，無需額外設定 */
-
   /* --- 結帳頁面美化 --- */
   .checkout-header {
     text-align: center;
@@ -997,5 +1007,24 @@ img {
   .admin-table td::before {
     margin-right: auto;
     text-align: left;
+  }
+}
+
+/* ================================================================ */
+/* --- 手機版 TikTok 影片裁切最終修正 --- */
+/* (這段必須放在檔案最底部，以確保優先級) */
+/* ================================================================ */
+@media (max-width: 768px) {
+  /*
+    在手機版窄螢幕下，我們需要強制 iframe 遵守容器的尺寸。
+    這個修正會覆蓋掉電腦版的 transform 置中樣式，
+    改回更簡單、更穩定的 top:0, left:0 定位方式。
+  */
+  .product-media-container iframe {
+    top: 0;
+    left: 0;
+    transform: none; /* 關鍵！移除電腦版的 transform 置中效果 */
+    width: 100%;
+    height: 100%;
   }
 }
