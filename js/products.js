@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="product-actions">
                 <button class="btn-primary btn-add-to-cart" data-id="${
                   product.id
-                }">加入購物車</button>
+                }">採購同款商品到集運倉</button>
               </div>
             </a>`;
         })
@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="product-detail-actions">
               <button class="btn-primary btn-add-to-cart" data-id="${
                 product.id
-              }">加入購物車</button>
+              }">採購同款商品到集運倉</button>
               <button class="btn-secondary btn-share" data-id="${
                 product.id
               }">分享商品</button>
